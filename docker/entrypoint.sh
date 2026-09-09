@@ -9,9 +9,7 @@ if [ ! -f .env ]; then
   cp .env.example .env
 fi
 
-if [ -z "$APP_KEY" ]; then
-  export APP_KEY="$(php artisan key:generate --show --force)"
-fi
+php artisan key:generate --force
 
 if [ -z "$DB_CONNECTION" ] || [ "$DB_CONNECTION" = "sqlite" ]; then
   export DB_CONNECTION=sqlite
