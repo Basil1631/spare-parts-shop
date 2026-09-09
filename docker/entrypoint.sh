@@ -3,6 +3,8 @@ set -e
 
 cd /app
 
+mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+
 if [ ! -f .env ]; then
   cp .env.example .env
 fi
