@@ -19,6 +19,7 @@ if [ -z "$DB_CONNECTION" ] || [ "$DB_CONNECTION" = "sqlite" ]; then
   touch "$DB_DATABASE"
 fi
 
+php artisan package:discover --ansi
 php artisan config:clear
 php artisan migrate --force --seed
 php artisan serve --host=0.0.0.0 --port="${PORT:-10000}"
