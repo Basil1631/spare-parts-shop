@@ -11,7 +11,7 @@ RUN mkdir -p \
         bootstrap/cache \
     && composer dump-autoload --optimize --no-dev --no-scripts
 
-FROM php:8.3-cli
+FROM php:8.4-cli
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git unzip libpq-dev libzip-dev libpng-dev libjpeg-dev libfreetype6-dev libsqlite3-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \

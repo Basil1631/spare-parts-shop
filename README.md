@@ -4,7 +4,7 @@ Laravel inventory and billing for a spare-parts counter: products, stock, garage
 
 ## Requirements
 
-- PHP 8.2+ with `pdo_sqlite` (or MySQL)
+- PHP 8.4+ with `pdo_sqlite` (or MySQL / Postgres)
 - Composer
 - Extensions: `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath` (recommended), `gd` or `imagick` (DomPDF)
 
