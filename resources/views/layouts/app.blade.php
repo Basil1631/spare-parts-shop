@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'Partzeno' }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Inter:wght@400;500;600&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -62,12 +62,42 @@
 
 @guest
     <div class="min-h-screen grid lg:grid-cols-2" style="font-family: Inter, ui-sans-serif, system-ui, sans-serif;">
-        <div class="hidden lg:block relative min-h-screen bg-[#09131F]">
-            <img src="{{ asset('images/partzeno-brand.png') }}" alt="Partzeno" class="absolute inset-0 w-full h-full object-cover object-center select-none" draggable="false">
+        <div class="hidden lg:flex flex-col min-h-screen bg-[#09131F] px-12 py-12">
+            <div class="flex-1"></div>
+            <div class="flex justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" class="w-[min(420px,72%)] h-auto" role="img" aria-label="Partzeno">
+                    <defs>
+                        <linearGradient id="partzenoWordmarkDesktop" x1="70" y1="28" x2="450" y2="88" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#D7F08A"/>
+                            <stop offset="0.45" stop-color="#B4E068"/>
+                            <stop offset="1" stop-color="#86C94A"/>
+                        </linearGradient>
+                    </defs>
+                    <text x="260" y="72" text-anchor="middle" fill="url(#partzenoWordmarkDesktop)" font-family="Poppins, Inter, sans-serif" font-size="64" font-weight="600">Partzeno</text>
+                    <text x="260" y="108" text-anchor="middle" font-family="Inter, sans-serif" font-size="16">
+                        <tspan fill="#8B7CF6">Powered By </tspan>
+                        <tspan fill="#9AA3B0" font-weight="500">Inktek Solutions</tspan>
+                    </text>
+                </svg>
+            </div>
+            <p class="flex-1 flex items-end justify-center text-[13px] text-[#8B93A0] text-center">Copyright © 2026 Inktek Solutions. All rights reserved.</p>
         </div>
         <div class="flex flex-col items-center justify-center min-h-screen px-6 py-10 bg-[#F4F5F9]">
-            <div class="lg:hidden w-full max-w-[400px] mb-8 overflow-hidden rounded-[24px]">
-                <img src="{{ asset('images/partzeno-brand.png') }}" alt="Partzeno" class="w-full h-44 object-cover object-center">
+            <div class="lg:hidden w-full max-w-[400px] mb-8 rounded-[24px] bg-[#09131F] px-6 py-10 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" class="w-full h-auto" role="img" aria-label="Partzeno">
+                    <defs>
+                        <linearGradient id="partzenoWordmarkMobile" x1="70" y1="28" x2="450" y2="88" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#D7F08A"/>
+                            <stop offset="0.45" stop-color="#B4E068"/>
+                            <stop offset="1" stop-color="#86C94A"/>
+                        </linearGradient>
+                    </defs>
+                    <text x="260" y="72" text-anchor="middle" fill="url(#partzenoWordmarkMobile)" font-family="Poppins, Inter, sans-serif" font-size="64" font-weight="600">Partzeno</text>
+                    <text x="260" y="108" text-anchor="middle" font-family="Inter, sans-serif" font-size="16">
+                        <tspan fill="#8B7CF6">Powered By </tspan>
+                        <tspan fill="#9AA3B0" font-weight="500">Inktek Solutions</tspan>
+                    </text>
+                </svg>
             </div>
             <div class="w-full max-w-[400px]">
                 @if ($errors->any())
