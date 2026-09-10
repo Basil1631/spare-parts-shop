@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Enums\BillStatus;
 use App\Models\Bill;
+use App\Models\PayrollAdjustment;
 use App\Models\SalesTarget;
 use App\Models\User;
 use Carbon\CarbonInterface;
@@ -34,7 +34,7 @@ class PayrollService
     }
 
     /**
-     * @return array{sales:int,target:int,extra:int,incentive:int,salary:int,take_home:int}
+     * @return array{sales:int,target:int,extra:int,incentive:int,salary:int,cuttings:int,take_home:int,cuttings_notes:?string}
      */
     public function monthPack(User $user, ?CarbonInterface $when = null): array
     {
@@ -45,6 +45,11 @@ class PayrollService
         $extra = max(0, $sales - $target);
         $incentive = (int) round($extra * ((float) $user->incentive_percent) / 100);
         $salary = $user->monthly_salary_fils;
+        $adj = PayrollAdjustment::query()
+            ->where('user_id', $user->id)
+            ->whereDate('period_start', $start->toDateString())
+            ->first();
+        $cuttings = (int) ($adj?->cuttings_fils ?? 0);
 
         return [
             'sales' => $sales,
@@ -52,7 +57,9 @@ class PayrollService
             'extra' => $extra,
             'incentive' => $incentive,
             'salary' => $salary,
-            'take_home' => $salary + $incentive,
+            'cuttings' => $cuttings,
+            'cuttings_notes' => $adj?->notes,
+            'take_home' => max(0, $salary + $incentive - $cuttings),
         ];
     }
 }

@@ -14,6 +14,7 @@ class ProductController extends Controller
 {
     public function index(Request $request): View
     {
+        abort_unless($request->user()->hasAnyRole(['admin', 'branch_manager', 'purchase']), 403);
         $products = Product::query()
             ->search($request->string('q')->toString())
             ->when(! $request->boolean('inactive'), fn ($q) => $q->active())
@@ -26,11 +27,14 @@ class ProductController extends Controller
 
     public function create(): View
     {
+        abort_unless(auth()->user()?->canManageCatalog(), 403);
+
         return view('products.create');
     }
 
     public function store(Request $request): RedirectResponse
     {
+        abort_unless($request->user()->canManageCatalog(), 403);
         $data = $this->validated($request);
         Product::query()->create($data);
 
@@ -39,11 +43,14 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
+        abort_unless(auth()->user()?->canManageCatalog(), 403);
+
         return view('products.edit', compact('product'));
     }
 
     public function update(Request $request, Product $product): RedirectResponse
     {
+        abort_unless($request->user()->canManageCatalog(), 403);
         $data = $this->validated($request, $product->id);
         $data['active'] = $request->boolean('active', true);
         $product->update($data);

@@ -56,6 +56,34 @@ class DatabaseSeeder extends Seeder
         $staff->forceFill(['branch_id' => $branch->id])->save();
         $staff->syncRoles(['sales', 'staff']);
 
+        $purchase = User::query()->firstOrCreate(
+            ['email' => 'purchase@shop.local'],
+            [
+                'name' => 'Purchase Manager',
+                'password' => Hash::make('password'),
+                'branch_id' => $branch->id,
+                'monthly_salary_fils' => 450000,
+                'incentive_percent' => 0,
+                'is_active' => true,
+            ]
+        );
+        $purchase->forceFill(['branch_id' => $branch->id])->save();
+        $purchase->syncRoles(['purchase']);
+
+        $accountant = User::query()->firstOrCreate(
+            ['email' => 'accounts@shop.local'],
+            [
+                'name' => 'Accountant',
+                'password' => Hash::make('password'),
+                'branch_id' => $branch->id,
+                'monthly_salary_fils' => 500000,
+                'incentive_percent' => 0,
+                'is_active' => true,
+            ]
+        );
+        $accountant->forceFill(['branch_id' => $branch->id])->save();
+        $accountant->syncRoles(['accountant']);
+
         ShopSetting::current();
     }
 }

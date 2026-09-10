@@ -1,7 +1,9 @@
 <x-layouts.app title="Products">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h1 class="text-2xl font-semibold">Products</h1>
-        <a href="{{ route('products.create') }}" class="bg-slate-900 text-white px-4 py-2 rounded-md">Add product</a>
+        @if (auth()->user()->canManageCatalog())
+            <a href="{{ route('products.create') }}" class="bg-slate-900 text-white px-4 py-2 rounded-xl">Add product</a>
+        @endif
     </div>
     <form class="mb-4 flex gap-2">
         <input name="q" value="{{ request('q') }}" placeholder="Search name or SKU" class="border rounded-md px-3 py-2 w-72 bg-white">
@@ -27,7 +29,11 @@
                     <td>{{ \App\Support\Money::fromFils($product->price_fils) }}</td>
                     <td>{{ $product->min_qty }}</td>
                     <td class="{{ $product->isLowStock() ? 'text-red-700 font-semibold' : '' }}">{{ $product->qty_on_hand }}</td>
-                    <td class="px-3"><a class="text-blue-700" href="{{ route('products.edit', $product) }}">Edit</a></td>
+                    <td class="px-3">
+                        @if (auth()->user()->canManageCatalog())
+                            <a class="text-teal-700" href="{{ route('products.edit', $product) }}">Edit</a>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
             </tbody>

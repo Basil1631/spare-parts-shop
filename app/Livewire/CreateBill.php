@@ -41,12 +41,28 @@ class CreateBill extends Component
 
     public function updatedCustomerKind($value): void
     {
+        if ($value === 'manual') {
+            return;
+        }
         $this->markup_percent = match ($value) {
             'regular' => 5,
             'new' => 20,
             default => (float) $this->markup_percent,
         };
         $this->applyMarkup();
+    }
+
+    public function setPricing(string $kind): void
+    {
+        $this->customer_kind = $kind;
+        $this->updatedCustomerKind($kind);
+    }
+
+    public function updatedLines($value, $key): void
+    {
+        if (is_string($key) && str_contains($key, 'unit_price')) {
+            $this->customer_kind = 'manual';
+        }
     }
 
     public function updatedMarkupPercent(): void
@@ -103,7 +119,9 @@ class CreateBill extends Component
         }
 
         $floor = $product->floorFilsFor(auth()->user()?->branch_id);
-        $sell = (int) round($floor * (100 + (float) $this->markup_percent) / 100);
+        $sell = $this->customer_kind === 'manual'
+            ? $floor
+            : (int) round($floor * (100 + (float) $this->markup_percent) / 100);
 
         $this->lines[] = [
             'product_id' => $product->id,

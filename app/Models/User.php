@@ -81,6 +81,16 @@ class User extends Authenticatable
         return $this->hasAnyRole(['admin', 'branch_manager']);
     }
 
+    public function canSeeHr(): bool
+    {
+        return $this->hasAnyRole(['admin', 'branch_manager', 'accountant']);
+    }
+
+    public function canManageCatalog(): bool
+    {
+        return $this->hasAnyRole(['admin', 'branch_manager']);
+    }
+
     public function canBill(): bool
     {
         return $this->hasAnyRole(['admin', 'branch_manager', 'sales', 'staff']);

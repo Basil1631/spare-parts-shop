@@ -74,7 +74,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/targets', [TargetController::class, 'store'])->name('targets.store');
 
     Route::get('/attendance', AttendanceController::class)->name('attendance.index');
-    Route::get('/payroll', PayrollController::class)->name('payroll.index');
+    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::post('/payroll', [PayrollController::class, 'update'])->name('payroll.update');
     Route::get('/reports/sales', SalesReportController::class)->name('reports.sales');
 
     Route::middleware('role:admin')->group(function () {

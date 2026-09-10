@@ -12,7 +12,7 @@ class AttendanceController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        abort_unless($request->user()->canManageStaff(), 403);
+        abort_unless($request->user()->canSeeHr(), 403);
         $from = $request->date('from')?->toDateString() ?? now()->startOfMonth()->toDateString();
         $to = $request->date('to')?->toDateString() ?? now()->toDateString();
 

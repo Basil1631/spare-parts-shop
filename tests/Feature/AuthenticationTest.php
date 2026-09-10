@@ -27,4 +27,28 @@ class AuthenticationTest extends TestCase
         $this->get('/bills/create')->assertOk();
         $this->get('/settings')->assertForbidden();
     }
+
+    public function test_purchase_and_accountant_logins(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $this->post('/login', [
+            'email' => 'purchase@shop.local',
+            'password' => 'password',
+        ])->assertRedirect('/');
+        $this->get('/purchases')->assertOk();
+        $this->get('/stock')->assertOk();
+        $this->get('/bills/create')->assertForbidden();
+        $this->get('/products/create')->assertForbidden();
+
+        $this->post('/logout');
+
+        $this->post('/login', [
+            'email' => 'accounts@shop.local',
+            'password' => 'password',
+        ])->assertRedirect('/');
+        $this->get('/payroll')->assertOk();
+        $this->get('/attendance')->assertOk();
+        $this->get('/bills/create')->assertForbidden();
+    }
 }

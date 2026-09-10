@@ -1,40 +1,35 @@
 <x-layouts.app title="Dashboard">
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-semibold">Dashboard</h1>
-        <a href="{{ route('bills.create') }}" class="bg-amber-400 text-slate-900 font-bold px-4 py-2 rounded-md">New bill</a>
-    </div>
-
-    <div class="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        <div class="bg-white rounded-lg p-4 shadow-sm">
+    <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
             <div class="text-sm text-slate-500">Today's bills</div>
             <div class="text-2xl font-semibold">{{ $todayCount }}</div>
         </div>
-        <div class="bg-white rounded-lg p-4 shadow-sm">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
             <div class="text-sm text-slate-500">Today sales (AED)</div>
             <div class="text-2xl font-semibold">{{ \App\Support\Money::fromFils($todayTotal) }}</div>
         </div>
-        <div class="bg-white rounded-lg p-4 shadow-sm">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
             <div class="text-sm text-slate-500">This week vs last</div>
             <div class="text-2xl font-semibold">{{ \App\Support\Money::fromFils($weekSales) }}</div>
             <div class="text-xs text-slate-500">Last week {{ \App\Support\Money::fromFils($lastWeekSales) }}</div>
         </div>
-        <div class="bg-white rounded-lg p-4 shadow-sm">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
             <div class="text-sm text-slate-500">This month vs last</div>
             <div class="text-2xl font-semibold">{{ \App\Support\Money::fromFils($monthSales) }}</div>
             <div class="text-xs text-slate-500">Last month {{ \App\Support\Money::fromFils($lastMonthSales) }}</div>
         </div>
-        <div class="bg-white rounded-lg p-4 shadow-sm">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
             <div class="text-sm text-slate-500">Cash today</div>
             <div class="text-2xl font-semibold">{{ \App\Support\Money::fromFils($todayCash) }}</div>
         </div>
-        <div class="bg-white rounded-lg p-4 shadow-sm {{ $lowStockCount ? 'ring-2 ring-red-500' : '' }}">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 {{ $lowStockCount ? 'ring-2 ring-red-400' : '' }}">
             <div class="text-sm text-slate-500">Low stock items</div>
             <div class="text-2xl font-semibold {{ $lowStockCount ? 'text-red-600' : '' }}">{{ $lowStockCount }}</div>
         </div>
     </div>
 
     <div class="grid lg:grid-cols-2 gap-6 mb-6">
-        <section class="bg-white rounded-lg shadow-sm p-4">
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
             <h2 class="font-semibold mb-2">Present in shop today (login)</h2>
             <ul class="text-sm space-y-1">
                 @forelse ($presentToday as $log)
@@ -44,7 +39,7 @@
                 @endforelse
             </ul>
         </section>
-        <section class="bg-white rounded-lg shadow-sm p-4">
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
             <h2 class="font-semibold mb-2">High performing sales (this month)</h2>
             <ul class="text-sm space-y-1">
                 @forelse ($topStaff as $row)
@@ -57,7 +52,7 @@
     </div>
 
     @if ($branchProfits->isNotEmpty())
-        <section class="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
             <h2 class="font-semibold mb-2">Branch profit this month (sale − purchase cost)</h2>
             <table class="w-full text-sm">
                 <thead class="text-left text-slate-500"><tr><th class="py-1">Branch</th><th>Sales</th><th>Profit</th></tr></thead>
@@ -75,7 +70,7 @@
     @endif
 
     <div class="grid lg:grid-cols-2 gap-6">
-        <section class="bg-white rounded-lg shadow-sm p-4">
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-semibold text-red-700">Low quantity spare parts</h2>
                 <a class="text-sm text-blue-700" href="{{ route('stock.index', ['filter' => 'low']) }}">View all</a>
@@ -97,7 +92,7 @@
             </table>
         </section>
 
-        <section class="bg-white rounded-lg shadow-sm p-4">
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-semibold">Due / overdue payments</h2>
                 <a class="text-sm text-blue-700" href="{{ route('collections.index') }}">Collections</a>
