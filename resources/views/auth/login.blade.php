@@ -1,19 +1,20 @@
 <x-layouts.app title="Sign in · Partzeno">
-    <div class="bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)] rounded-[28px] px-8 py-9 border border-white">
-        <h2 class="text-[22px] font-semibold text-slate-900">Sign in</h2>
-        <form method="POST" action="{{ route('login') }}" class="mt-7 space-y-5">
+    <div class="bg-white rounded-[24px] px-8 pt-8 pb-8 shadow-[0_18px_50px_rgba(16,22,34,0.08)]">
+        <h2 class="text-[20px] font-semibold text-[#101622] tracking-tight">Sign in</h2>
+        <p class="mt-1 text-[13px] text-[#ABACB0] leading-snug">Same URL for every role. Use your own email and password.</p>
+        <form method="POST" action="{{ route('login') }}" class="mt-6 space-y-4">
             @csrf
             <div>
-                <label class="block text-sm text-slate-600 mb-1.5">Email</label>
+                <label class="block text-[13px] text-[#6B7280] mb-1.5">Email</label>
                 <input name="email" type="email" value="{{ old('email') }}" required autocomplete="username"
-                       class="w-full bg-white border border-slate-200 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-300">
+                       class="w-full h-11 bg-white border border-[#E5E7EB] rounded-full px-4 text-[14px] text-[#101622] focus:outline-none focus:border-[#101622]">
             </div>
             <div>
-                <label class="block text-sm text-slate-600 mb-1.5">Password</label>
+                <label class="block text-[13px] text-[#6B7280] mb-1.5">Password</label>
                 <div class="relative">
                     <input id="password" name="password" type="password" required autocomplete="current-password"
-                           class="w-full bg-white border border-slate-200 rounded-full px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-300">
-                    <button type="button" id="toggle-password" class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-700" aria-label="Show password">
+                           class="w-full h-11 bg-white border border-[#E5E7EB] rounded-full px-4 pr-11 text-[14px] text-[#101622] focus:outline-none focus:border-[#101622]">
+                    <button type="button" id="toggle-password" class="absolute inset-y-0 right-3 flex items-center text-[#9CA3AF] hover:text-[#101622]" aria-label="Show password">
                         <svg id="eye-open" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12Z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z"/>
@@ -24,10 +25,10 @@
                     </button>
                 </div>
             </div>
-            <label class="flex items-center gap-2 text-sm text-slate-500">
-                <input type="checkbox" name="remember" class="rounded border-slate-300"> Remember me
+            <label class="flex items-center gap-2 text-[13px] text-[#6B7280]">
+                <input type="checkbox" name="remember" class="rounded border-[#D1D5DB] text-[#101622] focus:ring-[#101622]"> Remember me
             </label>
-            <button class="w-full bg-[#0a1628] hover:bg-[#111d33] text-white rounded-full py-2.5 text-sm font-medium">Continue</button>
+            <button class="w-full h-11 bg-[#101622] text-white rounded-full text-[14px] font-medium">Continue</button>
         </form>
     </div>
     <script>

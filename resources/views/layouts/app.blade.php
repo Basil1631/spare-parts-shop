@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'Partzeno' }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -61,19 +61,13 @@
 @endphp
 
 @guest
-    <div class="min-h-screen grid lg:grid-cols-2">
-        <div class="hidden lg:flex flex-col justify-between bg-[#0a1628] text-white px-16 py-12">
-            <div></div>
-            <div class="text-center">
-                <div class="text-6xl font-semibold tracking-tight bg-gradient-to-r from-lime-300 to-green-500 bg-clip-text text-transparent">Partzeno</div>
-                <p class="mt-4 text-sm"><span class="text-indigo-300">Powered By</span> <span class="text-slate-400 font-medium">Inktek Solutions</span></p>
-            </div>
-            <p class="text-center text-xs text-slate-500">Copyright © {{ date('Y') }} Inktek Solutions. All rights reserved.</p>
+    <div class="min-h-screen grid lg:grid-cols-2" style="font-family: Inter, ui-sans-serif, system-ui, sans-serif;">
+        <div class="hidden lg:block relative min-h-screen bg-[#09131F]">
+            <img src="{{ asset('images/partzeno-brand.png') }}" alt="Partzeno" class="absolute inset-0 w-full h-full object-cover object-center select-none" draggable="false">
         </div>
-        <div class="flex flex-col items-center justify-center p-6 bg-[#f4f6fb] min-h-screen">
-            <div class="lg:hidden text-center mb-10">
-                <div class="text-4xl font-semibold bg-gradient-to-r from-lime-400 to-green-600 bg-clip-text text-transparent">Partzeno</div>
-                <p class="mt-2 text-sm"><span class="text-indigo-400">Powered By</span> <span class="text-slate-500 font-medium">Inktek Solutions</span></p>
+        <div class="flex flex-col items-center justify-center min-h-screen px-6 py-10 bg-[#F4F5F9]">
+            <div class="lg:hidden w-full max-w-[400px] mb-8 overflow-hidden rounded-[24px]">
+                <img src="{{ asset('images/partzeno-brand.png') }}" alt="Partzeno" class="w-full h-44 object-cover object-center">
             </div>
             <div class="w-full max-w-[400px]">
                 @if ($errors->any())
@@ -83,7 +77,6 @@
                 @endif
                 {{ $slot }}
             </div>
-            <p class="lg:hidden mt-10 text-center text-xs text-slate-400">Copyright © {{ date('Y') }} Inktek Solutions. All rights reserved.</p>
         </div>
     </div>
 @else
