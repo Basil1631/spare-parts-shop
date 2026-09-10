@@ -32,6 +32,9 @@ class Bill extends Model
         'voided_by',
         'void_reason',
         'notes',
+        'branch_id',
+        'markup_percent',
+        'customer_kind',
     ];
 
     protected function casts(): array
@@ -47,12 +50,18 @@ class Bill extends Model
             'total_fils' => 'integer',
             'paid_fils' => 'integer',
             'credited_fils' => 'integer',
+            'markup_percent' => 'decimal:2',
         ];
     }
 
     public function garage(): BelongsTo
     {
         return $this->belongsTo(Garage::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function creator(): BelongsTo
@@ -111,5 +120,23 @@ class Bill extends Model
             $inner->where('number', 'like', '%'.$term.'%')
                 ->orWhere('garage_name', 'like', '%'.$term.'%');
         });
+    }
+
+    public function scopeForUser(Builder $query, User $user): Builder
+    {
+        if ($user->canSeeAllBranches()) {
+            return $query;
+        }
+
+        if ($user->branch_id) {
+            return $query->where('branch_id', $user->branch_id);
+        }
+
+        return $query->where('created_by', $user->id);
+    }
+
+    public function profitFils(): int
+    {
+        return (int) $this->items->sum(fn (BillItem $item) => ($item->unit_price_fils - $item->cost_fils) * ($item->qty - $item->returned_qty));
     }
 }

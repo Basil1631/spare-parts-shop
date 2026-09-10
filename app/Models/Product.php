@@ -87,4 +87,39 @@ class Product extends Model
     {
         return $this->hasMany(StockMovement::class);
     }
+
+    public function branchPrices(): HasMany
+    {
+        return $this->hasMany(BranchProductPrice::class);
+    }
+
+    public function floorFilsFor(?int $branchId): int
+    {
+        if ($branchId) {
+            $row = BranchProductPrice::query()
+                ->where('branch_id', $branchId)
+                ->where('product_id', $this->id)
+                ->first();
+            if ($row && $row->floor_fils > 0) {
+                return $row->floor_fils;
+            }
+        }
+
+        return $this->price_fils;
+    }
+
+    public function costFilsFor(?int $branchId): int
+    {
+        if ($branchId) {
+            $row = BranchProductPrice::query()
+                ->where('branch_id', $branchId)
+                ->where('product_id', $this->id)
+                ->first();
+            if ($row) {
+                return $row->last_cost_fils;
+            }
+        }
+
+        return 0;
+    }
 }

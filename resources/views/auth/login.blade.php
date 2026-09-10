@@ -1,7 +1,7 @@
 <x-layouts.app title="Login">
     <div class="max-w-md mx-auto mt-16 bg-white shadow rounded-lg p-8">
         <h1 class="text-2xl font-semibold mb-1">Spare Parts Shop</h1>
-        <p class="text-slate-500 mb-6">Sign in to billing and stock.</p>
+        <p class="text-slate-500 mb-6">One login for admin, branch managers, and staff. Use the email you were given.</p>
         <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
             <div>

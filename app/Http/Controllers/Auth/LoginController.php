@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\AttendanceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +29,17 @@ class LoginController extends Controller
             ])->onlyInput('email');
         }
 
+        $user = Auth::user();
+        if ($user && ! $user->is_active) {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'This account is inactive. Ask the branch manager or admin.',
+            ])->onlyInput('email');
+        }
+
         $request->session()->regenerate();
+        app(AttendanceService::class)->recordLogin($user, $request);
 
         return redirect()->intended(route('dashboard'));
     }

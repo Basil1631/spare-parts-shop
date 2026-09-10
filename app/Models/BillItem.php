@@ -19,6 +19,8 @@ class BillItem extends Model
         'line_vat_fils',
         'line_total_fils',
         'returned_qty',
+        'floor_unit_fils',
+        'cost_fils',
     ];
 
     protected function casts(): array
@@ -31,6 +33,8 @@ class BillItem extends Model
             'line_vat_fils' => 'integer',
             'line_total_fils' => 'integer',
             'returned_qty' => 'integer',
+            'floor_unit_fils' => 'integer',
+            'cost_fils' => 'integer',
         ];
     }
 

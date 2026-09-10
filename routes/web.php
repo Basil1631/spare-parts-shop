@@ -1,14 +1,22 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BillController;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CreditNoteController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FloorPriceController;
 use App\Http\Controllers\GarageController;
+use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\TargetController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [LoginController::class, 'create'])->name('login')->middleware('guest');
@@ -24,7 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/bills/{bill}', [BillController::class, 'show'])->name('bills.show');
     Route::get('/bills/{bill}/pdf', [BillController::class, 'pdf'])->name('bills.pdf');
     Route::get('/bills/{bill}/print', [BillController::class, 'print'])->name('bills.print');
-    Route::post('/bills/{bill}/void', [BillController::class, 'void'])->name('bills.void')->middleware('role:admin');
+    Route::post('/bills/{bill}/void', [BillController::class, 'void'])->name('bills.void');
 
     Route::get('/bills/{bill}/credit-notes/create', [CreditNoteController::class, 'create'])->name('credit-notes.create');
     Route::post('/bills/{bill}/credit-notes', [CreditNoteController::class, 'store'])->name('credit-notes.store');
@@ -46,6 +54,28 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/collections', [CollectionController::class, 'index'])->name('collections.index');
     Route::post('/collections', [CollectionController::class, 'store'])->name('collections.store');
+
+    Route::resource('branches', BranchController::class)->except(['show', 'destroy']);
+    Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+    Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
+    Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+    Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit');
+    Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
+
+    Route::get('/pricing', [FloorPriceController::class, 'index'])->name('pricing.index');
+    Route::post('/pricing', [FloorPriceController::class, 'update'])->name('pricing.update');
+
+    Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
+    Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
+    Route::post('/purchases', [PurchaseController::class, 'store'])->name('purchases.store');
+    Route::get('/purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
+
+    Route::get('/targets', [TargetController::class, 'index'])->name('targets.index');
+    Route::post('/targets', [TargetController::class, 'store'])->name('targets.store');
+
+    Route::get('/attendance', AttendanceController::class)->name('attendance.index');
+    Route::get('/payroll', PayrollController::class)->name('payroll.index');
+    Route::get('/reports/sales', SalesReportController::class)->name('reports.sales');
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');

@@ -16,6 +16,7 @@ class BillController extends Controller
     {
         $bills = Bill::query()
             ->with('garage')
+            ->forUser($request->user())
             ->search($request->string('q')->toString())
             ->when($request->date('from'), fn ($q, $from) => $q->whereDate('billed_at', '>=', $from))
             ->when($request->date('to'), fn ($q, $to) => $q->whereDate('billed_at', '<=', $to))
@@ -26,8 +27,10 @@ class BillController extends Controller
         return view('bills.index', compact('bills'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        abort_unless($request->user()->canBill(), 403);
+
         return view('bills.create');
     }
 

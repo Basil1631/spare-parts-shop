@@ -4,7 +4,7 @@
         <a href="{{ route('bills.create') }}" class="bg-amber-400 text-slate-900 font-bold px-4 py-2 rounded-md">New bill</a>
     </div>
 
-    <div class="grid md:grid-cols-4 gap-4 mb-8">
+    <div class="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         <div class="bg-white rounded-lg p-4 shadow-sm">
             <div class="text-sm text-slate-500">Today's bills</div>
             <div class="text-2xl font-semibold">{{ $todayCount }}</div>
@@ -12,6 +12,16 @@
         <div class="bg-white rounded-lg p-4 shadow-sm">
             <div class="text-sm text-slate-500">Today sales (AED)</div>
             <div class="text-2xl font-semibold">{{ \App\Support\Money::fromFils($todayTotal) }}</div>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm">
+            <div class="text-sm text-slate-500">This week vs last</div>
+            <div class="text-2xl font-semibold">{{ \App\Support\Money::fromFils($weekSales) }}</div>
+            <div class="text-xs text-slate-500">Last week {{ \App\Support\Money::fromFils($lastWeekSales) }}</div>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm">
+            <div class="text-sm text-slate-500">This month vs last</div>
+            <div class="text-2xl font-semibold">{{ \App\Support\Money::fromFils($monthSales) }}</div>
+            <div class="text-xs text-slate-500">Last month {{ \App\Support\Money::fromFils($lastMonthSales) }}</div>
         </div>
         <div class="bg-white rounded-lg p-4 shadow-sm">
             <div class="text-sm text-slate-500">Cash today</div>
@@ -22,6 +32,47 @@
             <div class="text-2xl font-semibold {{ $lowStockCount ? 'text-red-600' : '' }}">{{ $lowStockCount }}</div>
         </div>
     </div>
+
+    <div class="grid lg:grid-cols-2 gap-6 mb-6">
+        <section class="bg-white rounded-lg shadow-sm p-4">
+            <h2 class="font-semibold mb-2">Present in shop today (login)</h2>
+            <ul class="text-sm space-y-1">
+                @forelse ($presentToday as $log)
+                    <li>{{ $log->user?->name }} · {{ $log->user?->branch?->name }} · {{ $log->first_login_at->timezone(config('app.timezone'))->format('H:i') }}</li>
+                @empty
+                    <li class="text-slate-500">No logins yet today.</li>
+                @endforelse
+            </ul>
+        </section>
+        <section class="bg-white rounded-lg shadow-sm p-4">
+            <h2 class="font-semibold mb-2">High performing sales (this month)</h2>
+            <ul class="text-sm space-y-1">
+                @forelse ($topStaff as $row)
+                    <li>{{ $row['user']?->name ?? '—' }} · AED {{ \App\Support\Money::fromFils($row['sales_fils']) }}</li>
+                @empty
+                    <li class="text-slate-500">No sales yet this month.</li>
+                @endforelse
+            </ul>
+        </section>
+    </div>
+
+    @if ($branchProfits->isNotEmpty())
+        <section class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <h2 class="font-semibold mb-2">Branch profit this month (sale − purchase cost)</h2>
+            <table class="w-full text-sm">
+                <thead class="text-left text-slate-500"><tr><th class="py-1">Branch</th><th>Sales</th><th>Profit</th></tr></thead>
+                <tbody>
+                @foreach ($branchProfits as $row)
+                    <tr class="border-t">
+                        <td class="py-2">{{ $row['branch']->name }}</td>
+                        <td>AED {{ \App\Support\Money::fromFils($row['sales']) }}</td>
+                        <td>AED {{ \App\Support\Money::fromFils($row['profit']) }}</td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </section>
+    @endif
 
     <div class="grid lg:grid-cols-2 gap-6">
         <section class="bg-white rounded-lg shadow-sm p-4">

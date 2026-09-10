@@ -26,12 +26,42 @@ class CreateBill extends Component
 
     public string $notes = '';
 
-    /** @var list<array{product_id:int,name:string,sku:string,qty:int,unit_price:string,vat_rate:float,stock:int}> */
+    public string $customer_kind = 'regular';
+
+    public float $markup_percent = 5;
+
+    /** @var list<array{product_id:int,name:string,sku:string,qty:int,unit_price:string,vat_rate:float,stock:int,floor_fils:int}> */
     public array $lines = [];
 
     public function mount(): void
     {
         $this->credit_due_date = now()->addDays(30)->toDateString();
+        $this->markup_percent = 5;
+    }
+
+    public function updatedCustomerKind($value): void
+    {
+        $this->markup_percent = match ($value) {
+            'regular' => 5,
+            'new' => 20,
+            default => (float) $this->markup_percent,
+        };
+        $this->applyMarkup();
+    }
+
+    public function updatedMarkupPercent(): void
+    {
+        $this->customer_kind = 'custom';
+        $this->applyMarkup();
+    }
+
+    public function applyMarkup(): void
+    {
+        foreach ($this->lines as $i => $line) {
+            $floor = (int) ($line['floor_fils'] ?? 0);
+            $sell = (int) round($floor * (100 + (float) $this->markup_percent) / 100);
+            $this->lines[$i]['unit_price'] = number_format(max($floor, $sell) / 100, 2, '.', '');
+        }
     }
 
     public function updatedGarageId($value): void
@@ -72,14 +102,18 @@ class CreateBill extends Component
             }
         }
 
+        $floor = $product->floorFilsFor(auth()->user()?->branch_id);
+        $sell = (int) round($floor * (100 + (float) $this->markup_percent) / 100);
+
         $this->lines[] = [
             'product_id' => $product->id,
             'name' => $product->name,
             'sku' => $product->sku,
             'qty' => 1,
-            'unit_price' => number_format($product->price_fils / 100, 2, '.', ''),
+            'unit_price' => number_format(max($floor, $sell) / 100, 2, '.', ''),
             'vat_rate' => $product->vatPercent((float) ShopSetting::current()->vat_percent),
             'stock' => $product->qty_on_hand,
+            'floor_fils' => $floor,
         ];
         $this->search = '';
     }
@@ -105,6 +139,8 @@ class CreateBill extends Component
                 'credit_due_date' => $this->credit_due_date,
                 'installment_count' => $this->installment_count,
                 'notes' => $this->notes,
+                'markup_percent' => $this->markup_percent,
+                'customer_kind' => $this->customer_kind,
             ];
 
             $lines = [];

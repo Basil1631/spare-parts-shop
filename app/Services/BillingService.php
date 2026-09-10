@@ -48,6 +48,7 @@ class BillingService
             $bill = Bill::query()->create([
                 'number' => $this->numbers->nextInvoiceNumber(),
                 'garage_id' => $garage?->id,
+                'branch_id' => $user->branch_id,
                 'payment_type' => $paymentType,
                 'status' => BillStatus::Issued,
                 'billed_at' => now(),
@@ -60,6 +61,8 @@ class BillingService
                 'garage_trn' => $garage?->trn,
                 'created_by' => $user->id,
                 'notes' => $payload['notes'] ?? null,
+                'markup_percent' => (float) ($payload['markup_percent'] ?? 0),
+                'customer_kind' => $payload['customer_kind'] ?? null,
             ]);
 
             $subtotal = 0;
@@ -75,6 +78,10 @@ class BillingService
                 $unit = isset($line['unit_price_fils'])
                     ? (int) $line['unit_price_fils']
                     : $product->price_fils;
+                $floor = $product->floorFilsFor($user->branch_id);
+                if ($unit < $floor) {
+                    throw new RuntimeException("{$product->sku} cannot be sold below the floor price AED ".Money::fromFils($floor).'.');
+                }
                 $vatRate = $product->vatPercent((float) $settings->vat_percent);
                 $lineSubtotal = $unit * $qty;
                 $lineVat = Money::vatFils($lineSubtotal, $vatRate);
@@ -85,6 +92,8 @@ class BillingService
                     'sku' => $product->sku,
                     'qty' => $qty,
                     'unit_price_fils' => $unit,
+                    'floor_unit_fils' => $floor,
+                    'cost_fils' => $product->costFilsFor($user->branch_id),
                     'vat_rate' => $vatRate,
                     'line_subtotal_fils' => $lineSubtotal,
                     'line_vat_fils' => $lineVat,

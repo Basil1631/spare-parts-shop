@@ -9,6 +9,17 @@
                         <option value="{{ $garage->id }}">{{ $garage->name }} — {{ $garage->payment_type->label() }}</option>
                     @endforeach
                 </select>
+                <div class="mt-3">
+                    <label class="block text-sm font-medium mb-1">Customer type (markup on floor)</label>
+                    <select wire:model.live="customer_kind" class="w-full border rounded-md px-3 py-2">
+                        <option value="regular">Regular garage (+5%)</option>
+                        <option value="new">New / non-regular customer (+20%)</option>
+                        <option value="custom">Custom %</option>
+                    </select>
+                    <label class="block text-xs mt-2">Add % above floor</label>
+                    <input type="number" step="0.1" min="0" wire:model.blur="markup_percent" class="border rounded-md px-3 py-2 w-32">
+                    <p class="text-xs text-slate-500 mt-1">Selling price starts at floor + this %. Staff may type a higher rate; never below floor.</p>
+                </div>
             </div>
 
             <div class="bg-white rounded-lg shadow-sm p-4">
@@ -42,7 +53,7 @@
                     <tbody>
                     @forelse ($lines as $i => $line)
                         <tr class="border-t">
-                            <td class="px-3 py-2">{{ $line['name'] }}<div class="text-xs text-slate-500">{{ $line['sku'] }} · on hand {{ $line['stock'] }}</div></td>
+                            <td class="px-3 py-2">{{ $line['name'] }}<div class="text-xs text-slate-500">{{ $line['sku'] }} · on hand {{ $line['stock'] }} · floor AED {{ \App\Support\Money::fromFils($line['floor_fils'] ?? 0) }}</div></td>
                             <td><input type="number" min="1" wire:model.blur="lines.{{ $i }}.qty" class="border rounded w-20 px-2 py-1"></td>
                             <td><input wire:model.blur="lines.{{ $i }}.unit_price" class="border rounded w-28 px-2 py-1"></td>
                             <td>{{ $line['vat_rate'] }}</td>
