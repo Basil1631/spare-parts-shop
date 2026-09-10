@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? 'Spare Parts Shop' }}</title>
+    <title>{{ $title ?? 'Partzeno' }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -62,16 +62,20 @@
 
 @guest
     <div class="min-h-screen grid lg:grid-cols-2">
-        <div class="hidden lg:flex flex-col justify-between bg-ink-900 text-white p-12">
-            <div>
-                <div class="text-brand-400 font-semibold tracking-wide text-sm">UAE COUNTER SYSTEM</div>
-                <h1 class="mt-4 text-4xl font-semibold leading-tight">Spare parts billing,<br>stock and payroll.</h1>
-                <p class="mt-4 text-slate-400 max-w-md">One login for admin, branch managers, sales, purchase and accounts. Use the email issued to you.</p>
+        <div class="hidden lg:flex flex-col justify-between bg-[#0a1628] text-white px-16 py-12">
+            <div></div>
+            <div class="text-center">
+                <div class="text-6xl font-semibold tracking-tight bg-gradient-to-r from-lime-300 to-green-500 bg-clip-text text-transparent">Partzeno</div>
+                <p class="mt-4 text-sm"><span class="text-indigo-300">Powered By</span> <span class="text-slate-400 font-medium">Inktek Solutions</span></p>
             </div>
-            <p class="text-slate-500 text-sm">Currency AED · VAT invoices · Multi-branch</p>
+            <p class="text-center text-xs text-slate-500">Copyright © {{ date('Y') }} Inktek Solutions. All rights reserved.</p>
         </div>
-        <div class="flex items-center justify-center p-6">
-            <div class="w-full max-w-md">
+        <div class="flex flex-col items-center justify-center p-6 bg-[#f4f6fb] min-h-screen">
+            <div class="lg:hidden text-center mb-10">
+                <div class="text-4xl font-semibold bg-gradient-to-r from-lime-400 to-green-600 bg-clip-text text-transparent">Partzeno</div>
+                <p class="mt-2 text-sm"><span class="text-indigo-400">Powered By</span> <span class="text-slate-500 font-medium">Inktek Solutions</span></p>
+            </div>
+            <div class="w-full max-w-[400px]">
                 @if ($errors->any())
                     <div class="mb-4 rounded-2xl bg-red-50 border border-red-100 text-red-800 px-4 py-3 text-sm">
                         <ul class="list-disc ml-5">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
@@ -79,6 +83,7 @@
                 @endif
                 {{ $slot }}
             </div>
+            <p class="lg:hidden mt-10 text-center text-xs text-slate-400">Copyright © {{ date('Y') }} Inktek Solutions. All rights reserved.</p>
         </div>
     </div>
 @else
