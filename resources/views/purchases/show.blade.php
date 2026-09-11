@@ -5,17 +5,21 @@
     </div>
     <div class="bg-white p-6 rounded-lg space-y-3">
         <p>{{ $purchase->branch?->name }} · {{ $purchase->purchased_on->format('d M Y') }} · {{ $purchase->supplier_name }}</p>
-        <p>Entered by {{ $purchase->creator?->name }} · Total AED {{ \App\Support\Money::fromFils($purchase->total_fils) }}</p>
+        <p>{{ $purchase->status->label() }} · Entered by {{ $purchase->creator?->name }} · Total AED {{ \App\Support\Money::fromFils($purchase->total_fils) }}</p>
+        @if ($purchase->isAwaitingGodown())
+            <p class="text-sm text-amber-800">Stock is not updated until the godown supervisor confirms actual quantity received.</p>
+        @endif
         @if ($purchase->notes)
             <p class="text-sm text-slate-600">{{ $purchase->notes }}</p>
         @endif
         <table class="w-full text-sm">
-            <thead class="text-left text-slate-500"><tr><th class="py-1">Item</th><th>Qty</th><th>Cost</th><th>Line</th></tr></thead>
+            <thead class="text-left text-slate-500"><tr><th class="py-1">Item</th><th>Ordered</th><th>Received</th><th>Cost</th><th>Line</th></tr></thead>
             <tbody>
             @foreach ($purchase->items as $item)
                 <tr class="border-t">
                     <td class="py-2">{{ $item->product?->name }} ({{ $item->product?->sku }})</td>
                     <td>{{ $item->qty }}</td>
+                    <td>{{ $item->received_qty }}</td>
                     <td>AED {{ \App\Support\Money::fromFils($item->unit_cost_fils) }}</td>
                     <td>AED {{ \App\Support\Money::fromFils($item->line_total_fils) }}</td>
                 </tr>

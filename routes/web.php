@@ -9,6 +9,7 @@ use App\Http\Controllers\CreditNoteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FloorPriceController;
 use App\Http\Controllers\GarageController;
+use App\Http\Controllers\GodownReceiptController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\TargetController;
+use App\Http\Controllers\VendorBillController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [LoginController::class, 'create'])->name('login')->middleware('guest');
@@ -47,8 +49,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
     Route::get('/stock/low/export', [StockController::class, 'exportLow'])->name('stock.export');
-    Route::post('/stock/{product}/receive', [StockController::class, 'receive'])->name('stock.receive');
     Route::post('/stock/{product}/adjust-out', [StockController::class, 'adjustOut'])->name('stock.adjust-out');
+
+    Route::get('/godown', [GodownReceiptController::class, 'index'])->name('godown.index');
+    Route::get('/godown/{purchase}', [GodownReceiptController::class, 'show'])->name('godown.show');
+    Route::post('/godown/{purchase}', [GodownReceiptController::class, 'confirm'])->name('godown.confirm');
+
+    Route::get('/vendor-bills', [VendorBillController::class, 'index'])->name('vendor-bills.index');
+    Route::get('/vendor-bills/{purchase}', [VendorBillController::class, 'show'])->name('vendor-bills.show');
+    Route::post('/vendor-bills/{purchase}/pay', [VendorBillController::class, 'markPaid'])->name('vendor-bills.paid');
+    Route::post('/vendor-bills/{purchase}/unpay', [VendorBillController::class, 'markUnpaid'])->name('vendor-bills.unpaid');
 
     Route::resource('garages', GarageController::class)->except(['destroy']);
 

@@ -1,6 +1,6 @@
 <x-layouts.app title="Record purchase">
     <h1 class="text-2xl font-semibold mb-2">Purchase spare parts</h1>
-    <p class="text-sm text-slate-500 mb-4">Choose products that already exist. This only increases quantity — it does not create a new SKU. Scan or photograph the supplier invoice. Print from the browser if needed.</p>
+    <p class="text-sm text-slate-500 mb-4">Choose products that already exist. Stock does not increase until the godown supervisor confirms actual quantity received. Scan or photograph the supplier invoice.</p>
     <form method="POST" action="{{ route('purchases.store') }}" enctype="multipart/form-data" class="bg-white p-6 rounded-lg space-y-4">
         @csrf
         @if (auth()->user()->isAdmin())

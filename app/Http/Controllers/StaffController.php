@@ -48,7 +48,7 @@ class StaffController extends Controller
         unset($data['monthly_salary']);
         if (! $request->user()->isAdmin()) {
             $data['branch_id'] = $request->user()->branch_id;
-            if (! in_array($role, ['sales', 'purchase', 'accountant'], true)) {
+            if (! in_array($role, ['sales', 'purchase', 'accountant', 'godown_supervisor'], true)) {
                 abort(403);
             }
         }
@@ -85,7 +85,7 @@ class StaffController extends Controller
             $data['branch_id'] = $request->user()->branch_id;
         }
         $staff->update($data);
-        if ($request->user()->isAdmin() || in_array($role, ['sales', 'purchase', 'accountant'], true)) {
+        if ($request->user()->isAdmin() || in_array($role, ['sales', 'purchase', 'accountant', 'godown_supervisor'], true)) {
             $staff->syncRoles([Role::findOrCreate($role, 'web')]);
         }
 
@@ -107,7 +107,7 @@ class StaffController extends Controller
     private function assignableRoles(User $actor): array
     {
         if ($actor->isAdmin()) {
-            return [StaffRole::BranchManager, StaffRole::Sales, StaffRole::Purchase, StaffRole::Accountant];
+            return [StaffRole::BranchManager, StaffRole::Sales, StaffRole::Purchase, StaffRole::Accountant, StaffRole::GodownSupervisor];
         }
 
         return StaffRole::branchStaff();
@@ -116,8 +116,8 @@ class StaffController extends Controller
     private function validated(Request $request, ?int $id = null): array
     {
         $roles = $request->user()->isAdmin()
-            ? ['branch_manager', 'sales', 'purchase', 'accountant']
-            : ['sales', 'purchase', 'accountant'];
+            ? ['branch_manager', 'sales', 'purchase', 'accountant', 'godown_supervisor']
+            : ['sales', 'purchase', 'accountant', 'godown_supervisor'];
 
         $rules = [
             'name' => ['required', 'string', 'max:255'],

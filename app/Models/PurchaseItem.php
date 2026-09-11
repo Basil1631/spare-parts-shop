@@ -11,6 +11,7 @@ class PurchaseItem extends Model
         'purchase_id',
         'product_id',
         'qty',
+        'received_qty',
         'unit_cost_fils',
         'line_total_fils',
     ];
@@ -19,6 +20,7 @@ class PurchaseItem extends Model
     {
         return [
             'qty' => 'integer',
+            'received_qty' => 'integer',
             'unit_cost_fils' => 'integer',
             'line_total_fils' => 'integer',
         ];

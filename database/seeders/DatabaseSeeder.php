@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['admin', 'branch_manager', 'sales', 'purchase', 'accountant', 'staff'] as $name) {
+        foreach (['admin', 'branch_manager', 'sales', 'purchase', 'accountant', 'godown_supervisor', 'staff'] as $name) {
             Role::findOrCreate($name, 'web');
         }
 
@@ -83,6 +83,20 @@ class DatabaseSeeder extends Seeder
         );
         $accountant->forceFill(['branch_id' => $branch->id])->save();
         $accountant->syncRoles(['accountant']);
+
+        $godown = User::query()->firstOrCreate(
+            ['email' => 'godown@shop.local'],
+            [
+                'name' => 'Godown Supervisor',
+                'password' => Hash::make('password'),
+                'branch_id' => $branch->id,
+                'monthly_salary_fils' => 420000,
+                'incentive_percent' => 0,
+                'is_active' => true,
+            ]
+        );
+        $godown->forceFill(['branch_id' => $branch->id])->save();
+        $godown->syncRoles(['godown_supervisor']);
 
         ShopSetting::current();
     }

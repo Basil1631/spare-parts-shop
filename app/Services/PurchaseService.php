@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\PurchaseStatus;
 use App\Enums\StockMovementType;
 use App\Models\BranchProductPrice;
 use App\Models\Product;
@@ -44,6 +45,7 @@ class PurchaseService
                 'purchased_on' => $payload['purchased_on'] ?? now()->toDateString(),
                 'notes' => $payload['notes'] ?? null,
                 'invoice_path' => $path,
+                'status' => PurchaseStatus::AwaitingGodown,
             ]);
 
             $total = 0;
@@ -54,31 +56,14 @@ class PurchaseService
                     throw new RuntimeException('Purchase qty and cost must be valid.');
                 }
                 $lineTotal = $cost * $qty;
-                $product = Product::query()->whereKey($line['product_id'])->lockForUpdate()->firstOrFail();
 
                 $purchase->items()->create([
-                    'product_id' => $product->id,
+                    'product_id' => $line['product_id'],
                     'qty' => $qty,
+                    'received_qty' => 0,
                     'unit_cost_fils' => $cost,
                     'line_total_fils' => $lineTotal,
                 ]);
-
-                $this->stock->move(
-                    $product,
-                    StockMovementType::Receive,
-                    $qty,
-                    $user,
-                    'Purchase '.$purchase->id,
-                    lock: false,
-                );
-
-                $price = BranchProductPrice::forProduct($branchId, $product->id);
-                $price->last_cost_fils = $cost;
-                if (! $price->exists) {
-                    $price->profit_percent = (float) ($payload['default_profit_percent'] ?? 0);
-                }
-                $price->recalculateFloor();
-                $price->save();
 
                 $total += $lineTotal;
             }
@@ -88,5 +73,94 @@ class PurchaseService
 
             return $purchase->fresh(['items.product', 'branch']);
         });
+    }
+
+    /**
+     * @param  array<int, int>  $receivedByItemId
+     */
+    public function confirmReceipt(Purchase $purchase, array $receivedByItemId, User $user): Purchase
+    {
+        if (! $purchase->isAwaitingGodown()) {
+            throw new RuntimeException('This purchase is already received at the godown.');
+        }
+
+        $receivedByItemId = collect($receivedByItemId)
+            ->mapWithKeys(fn ($qty, $id) => [(int) $id => (int) $qty])
+            ->all();
+
+        return DB::transaction(function () use ($purchase, $receivedByItemId, $user) {
+            $purchase = Purchase::query()->whereKey($purchase->id)->lockForUpdate()->with('items.product')->firstOrFail();
+            $total = 0;
+
+            foreach ($purchase->items as $item) {
+                if (! array_key_exists($item->id, $receivedByItemId)) {
+                    throw new RuntimeException('Enter received quantity for every line.');
+                }
+                $received = (int) $receivedByItemId[$item->id];
+                if ($received < 0) {
+                    throw new RuntimeException('Received quantity cannot be negative.');
+                }
+                $item->received_qty = $received;
+                $item->line_total_fils = $item->unit_cost_fils * $received;
+                $item->save();
+                $total += $item->line_total_fils;
+
+                if ($received > 0) {
+                    $product = Product::query()->whereKey($item->product_id)->lockForUpdate()->firstOrFail();
+                    $this->stock->move(
+                        $product,
+                        StockMovementType::Receive,
+                        $received,
+                        $user,
+                        'Godown receipt '.$purchase->id,
+                        lock: false,
+                    );
+
+                    $price = BranchProductPrice::forProduct((int) $purchase->branch_id, $product->id);
+                    $price->last_cost_fils = $item->unit_cost_fils;
+                    $price->recalculateFloor();
+                    $price->save();
+                }
+            }
+
+            $purchase->total_fils = $total;
+            $purchase->status = PurchaseStatus::Received;
+            $purchase->received_by = $user->id;
+            $purchase->received_at = now();
+            $purchase->save();
+
+            return $purchase->fresh(['items.product', 'branch', 'receiver']);
+        });
+    }
+
+    public function markPaid(Purchase $purchase, User $user): Purchase
+    {
+        if ($purchase->status === PurchaseStatus::Paid) {
+            throw new RuntimeException('This vendor bill is already paid.');
+        }
+        if ($purchase->status !== PurchaseStatus::Received) {
+            throw new RuntimeException('Godown must confirm receipt before the accountant can pay.');
+        }
+
+        $purchase->status = PurchaseStatus::Paid;
+        $purchase->paid_by = $user->id;
+        $purchase->paid_at = now();
+        $purchase->save();
+
+        return $purchase->fresh();
+    }
+
+    public function markUnpaid(Purchase $purchase): Purchase
+    {
+        if ($purchase->status !== PurchaseStatus::Paid) {
+            throw new RuntimeException('This bill is not marked paid.');
+        }
+
+        $purchase->status = PurchaseStatus::Received;
+        $purchase->paid_by = null;
+        $purchase->paid_at = null;
+        $purchase->save();
+
+        return $purchase->fresh();
     }
 }

@@ -49,6 +49,20 @@ class AuthenticationTest extends TestCase
         ])->assertRedirect('/');
         $this->get('/payroll')->assertOk();
         $this->get('/attendance')->assertOk();
+        $this->get('/vendor-bills')->assertOk();
+        $this->get('/godown')->assertForbidden();
+        $this->get('/bills/create')->assertForbidden();
+
+        $this->post('/logout');
+
+        $this->post('/login', [
+            'email' => 'godown@shop.local',
+            'password' => 'password',
+        ])->assertRedirect('/');
+        $this->get('/godown')->assertOk();
+        $this->get('/stock')->assertOk();
+        $this->get('/purchases')->assertForbidden();
+        $this->get('/vendor-bills')->assertForbidden();
         $this->get('/bills/create')->assertForbidden();
     }
 }

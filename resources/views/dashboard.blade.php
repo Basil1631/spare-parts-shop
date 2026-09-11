@@ -73,7 +73,9 @@
         <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-semibold text-red-700">Low quantity spare parts</h2>
-                <a class="text-sm text-blue-700" href="{{ route('stock.index', ['filter' => 'low']) }}">View all</a>
+                @if (auth()->user()->canSeeStock())
+                    <a class="text-sm text-blue-700" href="{{ route('stock.index', ['filter' => 'low']) }}">View all</a>
+                @endif
             </div>
             <table class="w-full text-sm">
                 <thead><tr class="text-left text-slate-500"><th class="py-1">Product</th><th>SKU</th><th>Qty</th><th>Min</th></tr></thead>

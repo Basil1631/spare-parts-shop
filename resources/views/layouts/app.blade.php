@@ -141,19 +141,27 @@
                                 <?php $nav('garages.index', 'Garages', 'garage', 'garages.*'); ?>
                                 <?php $nav('collections.index', 'Collections', 'cash'); ?>
                             @endif
+                            @if ($u->canSeeVendorBills())
+                                <?php $nav('vendor-bills.index', 'Vendor bills', 'truck', ['vendor-bills.index', 'vendor-bills.show']); ?>
+                            @endif
                             @if ($u->canBill())
                                 <?php $nav('reports.sales', 'Sales analysis', 'chart'); ?>
                             @endif
                         </div>
                     </div>
                 @endif
-                @if ($u->canPurchase() || $u->hasAnyRole(['admin', 'branch_manager']))
+                @if ($u->canPurchase() || $u->canSeeStock() || $u->canConfirmGodown())
                     <div>
                         <div class="px-3 mb-2 text-[11px] uppercase tracking-wider text-slate-500">Stock</div>
                         <div class="space-y-0.5">
                             @if ($u->hasAnyRole(['admin', 'branch_manager', 'purchase']))
                                 <?php $nav('products.index', 'Products', 'box', 'products.*'); ?>
+                            @endif
+                            @if ($u->canSeeStock())
                                 <?php $nav('stock.index', 'Stock', 'stock'); ?>
+                            @endif
+                            @if ($u->canConfirmGodown())
+                                <?php $nav('godown.index', 'Incoming stock', 'box', ['godown.index', 'godown.show']); ?>
                             @endif
                             @if ($u->canPurchase())
                                 <?php $nav('purchases.index', 'Purchases', 'truck', 'purchases.*'); ?>

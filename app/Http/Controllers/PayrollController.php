@@ -23,7 +23,7 @@ class PayrollController extends Controller
         $staff = User::query()
             ->with('roles', 'branch')
             ->when(! $request->user()->isAdmin(), fn ($q) => $q->where('branch_id', $request->user()->branch_id))
-            ->whereHas('roles', fn ($q) => $q->whereIn('name', ['sales', 'staff', 'branch_manager', 'purchase', 'accountant']))
+            ->whereHas('roles', fn ($q) => $q->whereIn('name', ['sales', 'staff', 'branch_manager', 'purchase', 'accountant', 'godown_supervisor']))
             ->orderBy('name')
             ->get();
 

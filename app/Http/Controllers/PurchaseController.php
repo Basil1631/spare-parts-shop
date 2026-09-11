@@ -82,7 +82,7 @@ class PurchaseController extends Controller
             return back()->withErrors(['lines' => $e->getMessage()])->withInput();
         }
 
-        return redirect()->route('purchases.show', $purchase)->with('status', 'Purchase recorded. Stock and floor cost updated.');
+        return redirect()->route('purchases.show', $purchase)->with('status', 'Purchase raised. Awaiting godown confirmation. Stock is not updated yet.');
     }
 
     public function show(Request $request, Purchase $purchase): View
