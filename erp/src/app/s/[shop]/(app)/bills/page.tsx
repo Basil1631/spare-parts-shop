@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { shopContext } from "@/lib/auth";
 import { aed } from "@/lib/money";
 import { markVendorBill } from "@/app/actions";
+import { Badge, DataTable, PageHeader, statusTone } from "@/components/ui";
 
 export default async function BillsPage({ params }: { params: Promise<{ shop: string }> }) {
   const { shop: username } = await params;
@@ -14,28 +15,35 @@ export default async function BillsPage({ params }: { params: Promise<{ shop: st
   const mark = markVendorBill.bind(null, username);
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-2">Vendor bills</h1>
-      <p className="text-sm text-slate-500 mb-4">Invoices appear after godown confirms receipt.</p>
-      <table className="w-full text-sm bg-white rounded-2xl">
-        <thead className="bg-slate-50 text-left"><tr><th className="px-3 py-2">PO</th><th>Supplier</th><th>Amount</th><th>Status</th><th></th></tr></thead>
-        <tbody>
-          {bills.map((b) => (
-            <tr key={b.id} className="border-t">
-              <td className="px-3 py-2">{b.order.number}</td>
-              <td>{b.order.supplier?.name || "—"}</td>
-              <td>{aed(b.amountFils)}</td>
-              <td>{b.status}</td>
-              <td>
-                <form action={mark} className="inline">
-                  <input type="hidden" name="id" value={b.id} />
-                  <input type="hidden" name="status" value={b.status === "paid" ? "unpaid" : "paid"} />
-                  <button className="text-teal-700">{b.status === "paid" ? "Mark unpaid" : "Mark paid"}</button>
-                </form>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <PageHeader title="Vendor bills" hint="Invoices appear after godown confirms receipt." />
+      <DataTable headers={["PO", "Supplier", "Amount", "Status", ""]}>
+        {bills.map((b) => (
+          <tr key={b.id} className="hover:bg-slate-50/80">
+            <td className="px-4 py-3 font-medium">{b.order.number}</td>
+            <td>{b.order.supplier?.name || "—"}</td>
+            <td className="tabular-nums">{aed(b.amountFils)}</td>
+            <td>
+              <Badge tone={statusTone(b.status)}>{b.status}</Badge>
+            </td>
+            <td className="pr-4 text-right">
+              <form action={mark} className="inline">
+                <input type="hidden" name="id" value={b.id} />
+                <input type="hidden" name="status" value={b.status === "paid" ? "unpaid" : "paid"} />
+                <button className="text-sm font-medium text-teal-700 hover:text-teal-900">
+                  {b.status === "paid" ? "Mark unpaid" : "Mark paid"}
+                </button>
+              </form>
+            </td>
+          </tr>
+        ))}
+        {bills.length === 0 ? (
+          <tr>
+            <td colSpan={5} className="px-4 py-8 text-slate-500">
+              No vendor bills yet.
+            </td>
+          </tr>
+        ) : null}
+      </DataTable>
     </div>
   );
 }

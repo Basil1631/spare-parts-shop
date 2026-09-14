@@ -1,18 +1,19 @@
+import { Inter, Poppins } from "next/font/google";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const poppins = Poppins({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-poppins" });
 
 export const metadata: Metadata = {
-  title: "Spare Parts ERP",
-  description: "Multi-shop spare parts ERP — provider console and per-shop login URLs",
+  title: "Partszone",
+  description: "Spare parts ERP by Inktek Solutions",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen bg-slate-50 text-slate-900 antialiased`}>{children}</body>
+      <body className={`${inter.className} ${inter.variable} ${poppins.variable} min-h-screen antialiased`}>{children}</body>
     </html>
   );
 }

@@ -3,6 +3,7 @@ import { shopContext } from "@/lib/auth";
 import { ROLE_LABEL } from "@/lib/roles";
 import { saveStaff } from "@/app/actions";
 import { aed } from "@/lib/money";
+import { btnPrimary, DataTable, field, PageHeader, Panel } from "@/components/ui";
 
 export default async function StaffPage({ params }: { params: Promise<{ shop: string }> }) {
   const { shop: username } = await params;
@@ -11,34 +12,34 @@ export default async function StaffPage({ params }: { params: Promise<{ shop: st
   const save = saveStaff.bind(null, username);
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Staff</h1>
-      <p className="text-sm text-slate-500">Everyone signs in at /s/{username} with their own email and password.</p>
-      <form action={save} className="bg-white rounded-2xl border p-4 grid md:grid-cols-3 gap-2">
-        <input name="name" required placeholder="Name" className="border rounded-xl px-3 py-2" />
-        <input name="email" type="email" required placeholder="Email (login)" className="border rounded-xl px-3 py-2" />
-        <input name="password" type="password" placeholder="Password (default password)" className="border rounded-xl px-3 py-2" />
-        <select name="role" className="border rounded-xl px-3 py-2">
-          {Object.entries(ROLE_LABEL).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
-        <input name="salary" step="0.01" placeholder="Monthly salary AED" className="border rounded-xl px-3 py-2" />
-        <input name="incentive" step="0.1" placeholder="Incentive %" className="border rounded-xl px-3 py-2" />
-        <button className="bg-slate-900 text-white rounded-xl">Add staff</button>
-      </form>
-      <table className="w-full text-sm bg-white rounded-2xl">
-        <thead className="bg-slate-50 text-left"><tr><th className="px-3 py-2">Name</th><th>Email</th><th>Role</th><th>Salary</th></tr></thead>
-        <tbody>
-          {users.map((u) => (
-            <tr key={u.id} className="border-t">
-              <td className="px-3 py-2">{u.name}</td>
-              <td>{u.email}</td>
-              <td>{ROLE_LABEL[u.role]}</td>
-              <td>{aed(u.monthlySalaryFils)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <PageHeader title="Staff" hint={`Everyone signs in at /s/${username} with their own email and password. First login each Dubai day marks them present.`} />
+      <Panel className="p-4">
+        <form action={save} className="grid md:grid-cols-3 gap-2">
+          <input name="name" required placeholder="Name" className={field} />
+          <input name="email" type="email" required placeholder="Email (login)" className={field} />
+          <input name="password" type="password" placeholder="Password (default: password)" className={field} />
+          <select name="role" className={field}>
+            {Object.entries(ROLE_LABEL).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <input name="salary" step="0.01" placeholder="Monthly salary AED" className={field} />
+          <input name="incentive" step="0.1" placeholder="Incentive %" className={field} />
+          <button className={`${btnPrimary} md:col-span-3`}>Add staff</button>
+        </form>
+      </Panel>
+      <DataTable headers={["Name", "Email", "Role", "Salary"]}>
+        {users.map((u) => (
+          <tr key={u.id} className="hover:bg-slate-50/80">
+            <td className="px-4 py-3 font-medium">{u.name}</td>
+            <td className="text-slate-500">{u.email}</td>
+            <td>{ROLE_LABEL[u.role]}</td>
+            <td className="tabular-nums">{aed(u.monthlySalaryFils)}</td>
+          </tr>
+        ))}
+      </DataTable>
     </div>
   );
 }

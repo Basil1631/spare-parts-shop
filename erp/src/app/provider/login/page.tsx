@@ -1,4 +1,6 @@
 import { providerLogin } from "@/app/actions";
+import { LoginShell } from "@/components/LoginShell";
+import { PasswordField } from "@/components/PasswordField";
 
 export default async function ProviderLoginPage({
   searchParams,
@@ -7,15 +9,29 @@ export default async function ProviderLoginPage({
 }) {
   const q = await searchParams;
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <form action={providerLogin} className="w-full max-w-md rounded-3xl bg-white border border-slate-100 p-8 space-y-4">
-        <h1 className="text-xl font-semibold">Super admin</h1>
-        <p className="text-sm text-slate-500">This URL is only for Inktek. Shop staff do not use it.</p>
-        {q.error ? <p className="text-sm text-red-600">Wrong email or password.</p> : null}
-        <input name="email" type="email" required placeholder="Email" className="w-full rounded-xl border px-3 py-2" />
-        <input name="password" type="password" required placeholder="Password" className="w-full rounded-xl border px-3 py-2" />
-        <button className="w-full rounded-xl bg-slate-900 text-white py-2.5">Sign in</button>
-      </form>
-    </main>
+    <LoginShell>
+      <div className="bg-white rounded-[24px] px-8 pt-8 pb-8 shadow-[0_18px_50px_rgba(16,22,34,0.08)]">
+        <h2 className="text-[20px] font-semibold text-[#101622] tracking-tight">Sign in</h2>
+        <p className="mt-1 text-[13px] text-[#ABACB0] leading-snug">Super admin console. Shop staff use their shop URL.</p>
+        {q.error ? <p className="mt-3 text-sm text-red-600">Wrong email or password.</p> : null}
+        <form action={providerLogin} className="mt-6 space-y-4">
+          <div>
+            <label className="block text-[13px] text-[#6B7280] mb-1.5">Email</label>
+            <input
+              name="email"
+              type="email"
+              required
+              autoComplete="username"
+              className="w-full h-11 bg-white border border-[#E5E7EB] rounded-full px-4 text-[14px] text-[#101622] focus:outline-none focus:border-[#101622]"
+            />
+          </div>
+          <PasswordField />
+          <label className="flex items-center gap-2 text-[13px] text-[#6B7280]">
+            <input type="checkbox" name="remember" className="rounded border-[#D1D5DB] text-[#101622] focus:ring-[#101622]" /> Remember me
+          </label>
+          <button className="w-full h-11 bg-[#101622] text-white rounded-full text-[14px] font-medium">Continue</button>
+        </form>
+      </div>
+    </LoginShell>
   );
 }

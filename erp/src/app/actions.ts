@@ -33,7 +33,8 @@ export async function providerLogin(formData: FormData) {
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
     redirect("/provider/login?error=1");
   }
-  await setSession({ kind: "provider", userId: user.id, email: user.email, name: user.name });
+  const days = formData.get("remember") ? 14 : 1;
+  await setSession({ kind: "provider", userId: user.id, email: user.email, name: user.name }, days);
   redirect("/provider");
 }
 
@@ -103,16 +104,20 @@ export async function shopLogin(username: string, formData: FormData) {
   if (!user || !user.active || !(await verifyPassword(password, user.passwordHash))) {
     redirect(`/s/${username}/login?error=1`);
   }
-  await setSession({
-    kind: "shop",
-    userId: user.id,
-    shopId: shop.id,
-    shopUsername: shop.username,
-    shopName: shop.name,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-  });
+  const days = formData.get("remember") ? 14 : 1;
+  await setSession(
+    {
+      kind: "shop",
+      userId: user.id,
+      shopId: shop.id,
+      shopUsername: shop.username,
+      shopName: shop.name,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    },
+    days,
+  );
   await markAttendance(user.id, shop.id);
   redirect(`/s/${username}`);
 }

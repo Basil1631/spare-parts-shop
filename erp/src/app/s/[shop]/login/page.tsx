@@ -1,4 +1,6 @@
 import { shopLogin } from "@/app/actions";
+import { LoginShell } from "@/components/LoginShell";
+import { PasswordField } from "@/components/PasswordField";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
@@ -14,22 +16,42 @@ export default async function ShopLoginPage({
   const shop = await prisma.shop.findUnique({ where: { username } });
   if (!shop) notFound();
   if (shop.status === "suspended") {
-    return <main className="p-8 text-center">This shop is suspended. Contact Inktek.</main>;
+    return (
+      <LoginShell>
+        <div className="bg-white rounded-[24px] px-8 py-10 text-center">
+          <h2 className="text-[20px] font-semibold">Shop suspended</h2>
+          <p className="mt-2 text-[13px] text-[#ABACB0]">Contact Inktek Solutions.</p>
+        </div>
+      </LoginShell>
+    );
   }
   const login = shopLogin.bind(null, username);
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <form action={login} className="w-full max-w-md rounded-3xl bg-white border p-8 space-y-4">
-        <p className="text-xs uppercase tracking-wider text-slate-400">Shop login</p>
-        <h1 className="text-xl font-semibold">{shop.name}</h1>
-        <p className="text-sm text-slate-500">
-          URL for everyone in this shop: <span className="font-mono">/s/{shop.username}</span>. Use your own email and password.
+    <LoginShell>
+      <div className="bg-white rounded-[24px] px-8 pt-8 pb-8 shadow-[0_18px_50px_rgba(16,22,34,0.08)]">
+        <h2 className="text-[20px] font-semibold text-[#101622] tracking-tight">Sign in</h2>
+        <p className="mt-1 text-[13px] text-[#ABACB0] leading-snug">
+          {shop.name}. Same URL for every role. Use your own email and password.
         </p>
-        {q.error === "1" ? <p className="text-sm text-red-600">Wrong email or password.</p> : null}
-        <input name="email" type="email" required placeholder="Email" className="w-full rounded-xl border px-3 py-2" />
-        <input name="password" type="password" required placeholder="Password" className="w-full rounded-xl border px-3 py-2" />
-        <button className="w-full rounded-xl bg-slate-900 text-white py-2.5">Sign in</button>
-      </form>
-    </main>
+        {q.error === "1" ? <p className="mt-3 text-sm text-red-600">Wrong email or password.</p> : null}
+        <form action={login} className="mt-6 space-y-4">
+          <div>
+            <label className="block text-[13px] text-[#6B7280] mb-1.5">Email</label>
+            <input
+              name="email"
+              type="email"
+              required
+              autoComplete="username"
+              className="w-full h-11 bg-white border border-[#E5E7EB] rounded-full px-4 text-[14px] text-[#101622] focus:outline-none focus:border-[#101622]"
+            />
+          </div>
+          <PasswordField />
+          <label className="flex items-center gap-2 text-[13px] text-[#6B7280]">
+            <input type="checkbox" name="remember" className="rounded border-[#D1D5DB] text-[#101622] focus:ring-[#101622]" /> Remember me
+          </label>
+          <button className="w-full h-11 bg-[#101622] text-white rounded-full text-[14px] font-medium">Continue</button>
+        </form>
+      </div>
+    </LoginShell>
   );
 }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import type { Role } from "@prisma/client";
 import { prisma } from "./prisma";
+import { dubaiDayUtc } from "./time";
 
 const COOKIE = "erp_session";
 
@@ -33,10 +34,10 @@ export async function verifyPassword(plain: string, hash: string) {
   return bcrypt.compare(plain, hash);
 }
 
-export async function setSession(session: Session) {
+export async function setSession(session: Session, days = 14) {
   const token = await new SignJWT(session as unknown as JWTPayload)
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("14d")
+    .setExpirationTime(`${days}d`)
     .sign(secret());
   const jar = await cookies();
   jar.set(COOKIE, token, {
@@ -44,7 +45,7 @@ export async function setSession(session: Session) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 14,
+    maxAge: 60 * 60 * 24 * days,
   });
 }
 
@@ -87,8 +88,7 @@ export async function shopContext(username: string): Promise<ShopSession> {
 }
 
 export async function markAttendance(userId: string, shopId: string) {
-  const day = new Date();
-  day.setUTCHours(0, 0, 0, 0);
+  const day = dubaiDayUtc();
   await prisma.attendance.upsert({
     where: { userId_workedOn: { userId, workedOn: day } },
     update: {},

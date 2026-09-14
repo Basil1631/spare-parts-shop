@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { shopContext } from "@/lib/auth";
 import { aed } from "@/lib/money";
 import { savePart } from "@/app/actions";
+import { btnPrimary, DataTable, field, PageHeader, Panel } from "@/components/ui";
 
 export default async function PartsPage({ params }: { params: Promise<{ shop: string }> }) {
   const { shop: username } = await params;
@@ -14,30 +15,40 @@ export default async function PartsPage({ params }: { params: Promise<{ shop: st
   const save = savePart.bind(null, username);
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Catalog</h1>
-      <form action={save} className="bg-white rounded-2xl border p-4 grid md:grid-cols-6 gap-2">
-        <input name="sku" required placeholder="SKU" className="border rounded-xl px-3 py-2" />
-        <input name="name" required placeholder="Name" className="border rounded-xl px-3 py-2 md:col-span-2" />
-        <input name="brand" placeholder="Brand" className="border rounded-xl px-3 py-2" />
-        <input name="oemNumber" placeholder="OEM" className="border rounded-xl px-3 py-2" />
-        <input name="price" step="0.01" placeholder="Sale AED" className="border rounded-xl px-3 py-2" />
-        <input name="minQty" type="number" defaultValue={0} className="border rounded-xl px-3 py-2" />
-        <button className="bg-slate-900 text-white rounded-xl">Add part</button>
-      </form>
-      <table className="w-full text-sm bg-white rounded-2xl overflow-hidden">
-        <thead className="bg-slate-50 text-left"><tr><th className="px-3 py-2">SKU</th><th>Name</th><th>OEM</th><th>On hand</th><th>Price</th></tr></thead>
-        <tbody>
-          {parts.map((p) => (
-            <tr key={p.id} className="border-t">
-              <td className="px-3 py-2">{p.sku}</td>
+      <PageHeader title="Catalog" hint="SKU, OEM and selling price. Stock quantity is never typed here — it comes from incoming stock." />
+      <Panel className="p-4">
+        <form action={save} className="grid md:grid-cols-6 gap-2">
+          <input name="sku" required placeholder="SKU" className={field} />
+          <input name="name" required placeholder="Name" className={`${field} md:col-span-2`} />
+          <input name="brand" placeholder="Brand" className={field} />
+          <input name="oemNumber" placeholder="OEM" className={field} />
+          <input name="price" step="0.01" placeholder="Sale AED" className={field} />
+          <input name="minQty" type="number" defaultValue={0} placeholder="Min qty" className={field} />
+          <button className={`${btnPrimary} md:col-span-5`}>Add part</button>
+        </form>
+      </Panel>
+      <DataTable headers={["SKU", "Name", "OEM", "On hand", "Price"]}>
+        {parts.map((p) => {
+          const qty = p.stocks.reduce((a, b) => a + b.qtyOnHand, 0);
+          const low = qty <= p.minQty;
+          return (
+            <tr key={p.id} className="hover:bg-slate-50/80">
+              <td className="px-4 py-3 font-medium tabular-nums">{p.sku}</td>
               <td>{p.name}</td>
-              <td>{p.oemNumber}</td>
-              <td>{p.stocks.reduce((a, b) => a + b.qtyOnHand, 0)}</td>
-              <td>{aed(p.salePriceFils)}</td>
+              <td className="text-slate-500">{p.oemNumber || "—"}</td>
+              <td className={low ? "text-amber-700 font-medium" : ""}>{qty}</td>
+              <td className="tabular-nums">{aed(p.salePriceFils)}</td>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          );
+        })}
+        {parts.length === 0 ? (
+          <tr>
+            <td colSpan={5} className="px-4 py-8 text-slate-500">
+              No parts yet.
+            </td>
+          </tr>
+        ) : null}
+      </DataTable>
     </div>
   );
 }
