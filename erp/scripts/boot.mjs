@@ -6,7 +6,9 @@ function run(cmd, args) {
 }
 
 run("npx", ["prisma", "migrate", "deploy"]);
-run("npx", ["tsx", "prisma/seed.ts"]);
+if (process.env.SEED_ON_BOOT === "true") {
+  run("npx", ["tsx", "prisma/seed.ts"]);
+}
 
 const port = process.env.PORT || "10000";
 run("npx", ["next", "start", "-H", "0.0.0.0", "-p", String(port)]);

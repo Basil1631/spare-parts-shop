@@ -2,14 +2,19 @@ import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
-import type { Role } from "@prisma/client";
+import { randomUUID } from "node:crypto";
+import type { Prisma, Role } from "@prisma/client";
 import { prisma } from "./prisma";
 import { dubaiDayUtc } from "./time";
 
 const COOKIE = "erp_session";
 
 function secret() {
-  const s = process.env.AUTH_SECRET || "dev-only-change-me";
+  const s = process.env.AUTH_SECRET;
+  if (!s) {
+    if (process.env.NODE_ENV === "production") throw new Error("AUTH_SECRET is required");
+    return new TextEncoder().encode("dev-only-change-me");
+  }
   return new TextEncoder().encode(s);
 }
 
@@ -25,6 +30,7 @@ export type ShopSession = {
   role: Role;
 };
 export type Session = ProviderSession | ShopSession;
+export type DbClient = Prisma.TransactionClient | typeof prisma;
 
 export async function hashPassword(plain: string) {
   return bcrypt.hash(plain, 10);
@@ -74,15 +80,30 @@ export async function requireProvider(): Promise<ProviderSession> {
 export async function requireShop(username: string): Promise<ShopSession> {
   const s = await getSession();
   if (!s || s.kind !== "shop" || s.shopUsername !== username) throw new Error("UNAUTHORIZED_SHOP");
-  const shop = await prisma.shop.findUnique({ where: { username } });
+  const [shop, user] = await Promise.all([
+    prisma.shop.findUnique({ where: { username } }),
+    prisma.user.findUnique({ where: { id: s.userId } }),
+  ]);
   if (!shop || shop.status === "suspended") throw new Error("SHOP_SUSPENDED");
-  return s;
+  if (!user || !user.active || user.shopId !== shop.id) throw new Error("UNAUTHORIZED_SHOP");
+  return {
+    kind: "shop",
+    userId: user.id,
+    shopId: shop.id,
+    shopUsername: shop.username,
+    shopName: shop.name,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  };
 }
 
 export async function shopContext(username: string): Promise<ShopSession> {
   try {
     return await requireShop(username);
-  } catch {
+  } catch (e) {
+    const code = e instanceof Error ? e.message : "";
+    if (code === "SHOP_SUSPENDED") redirect(`/s/${username}/login?error=shop`);
     redirect(`/s/${username}/login`);
   }
 }
@@ -97,18 +118,16 @@ export async function markAttendance(userId: string, shopId: string) {
   await prisma.user.update({ where: { id: userId }, data: { lastLoginAt: new Date() } });
 }
 
-export async function nextNumber(shopId: string, name: string, prefix: string) {
-  const n = await prisma.$transaction(async (tx) => {
-    const row = await tx.sequence.upsert({
-      where: { shopId_name: { shopId, name } },
-      update: {},
-      create: { shopId, name, next: 1 },
-    });
-    await tx.sequence.update({
-      where: { shopId_name: { shopId, name } },
-      data: { next: row.next + 1 },
-    });
-    return row.next;
-  });
-  return `${prefix}-${String(n).padStart(5, "0")}`;
+export async function nextNumber(shopId: string, name: string, prefix: string, db: DbClient = prisma) {
+  await db.$executeRaw`
+    INSERT INTO "Sequence" (id, "shopId", name, next)
+    VALUES (${randomUUID()}, ${shopId}, ${name}, 1)
+    ON CONFLICT ("shopId", name) DO NOTHING
+  `;
+  const rows = await db.$queryRaw<{ next: number }[]>`
+    UPDATE "Sequence" SET next = next + 1
+    WHERE "shopId" = ${shopId} AND name = ${name}
+    RETURNING next - 1 AS next
+  `;
+  return `${prefix}-${String(rows[0].next).padStart(5, "0")}`;
 }

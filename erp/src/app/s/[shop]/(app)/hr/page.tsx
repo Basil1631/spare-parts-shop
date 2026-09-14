@@ -1,13 +1,13 @@
-import { shopContext } from "@/lib/auth";
 import { aed } from "@/lib/money";
 import { shopRoster } from "@/lib/roster";
 import { dubaiTime } from "@/lib/time";
 import { prisma } from "@/lib/prisma";
 import { DataTable, PageHeader, Panel } from "@/components/ui";
+import { shopModule } from "@/lib/access";
 
 export default async function HrPage({ params }: { params: Promise<{ shop: string }> }) {
   const { shop: username } = await params;
-  const s = await shopContext(username);
+  const s = await shopModule(username, "hr");
   const [users, roster] = await Promise.all([
     prisma.user.findMany({ where: { shopId: s.shopId }, orderBy: { name: "asc" } }),
     shopRoster(s.shopId),
@@ -17,11 +17,11 @@ export default async function HrPage({ params }: { params: Promise<{ shop: strin
       <PageHeader title="HR / payroll" hint="Attendance follows employee login. Salary and incentive sit on the staff card." />
       <div className="grid sm:grid-cols-2 gap-4">
         <Panel className="p-5">
-          <div className="text-sm text-slate-500">Present</div>
+          <div className="text-sm text-slate-500">Signed in today</div>
           <div className="text-2xl font-semibold text-emerald-700">{roster.present.length}</div>
         </Panel>
         <Panel className="p-5">
-          <div className="text-sm text-slate-500">Leave / not in</div>
+          <div className="text-sm text-slate-500">Not signed in</div>
           <div className="text-2xl font-semibold text-amber-700">{roster.leave.length}</div>
         </Panel>
       </div>
@@ -41,8 +41,8 @@ export default async function HrPage({ params }: { params: Promise<{ shop: strin
         {users.map((u) => (
           <tr key={u.id}>
             <td className="px-4 py-3 font-medium">{u.name}</td>
-            <td className="tabular-nums">{aed(u.monthlySalaryFils)}</td>
-            <td>{u.incentivePercent}%</td>
+            <td className="px-4 py-3 tabular-nums">{aed(u.monthlySalaryFils)}</td>
+            <td className="px-4 py-3">{u.incentivePercent}%</td>
           </tr>
         ))}
       </DataTable>

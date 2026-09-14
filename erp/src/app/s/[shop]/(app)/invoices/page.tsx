@@ -1,11 +1,18 @@
 import { prisma } from "@/lib/prisma";
-import { shopContext } from "@/lib/auth";
 import { aed } from "@/lib/money";
-import { Badge, DataTable, PageHeader, statusTone } from "@/components/ui";
+import { Badge, Banner, DataTable, PageHeader, statusTone } from "@/components/ui";
+import { shopModule } from "@/lib/access";
 
-export default async function InvoicesPage({ params }: { params: Promise<{ shop: string }> }) {
+export default async function InvoicesPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ shop: string }>;
+  searchParams: Promise<{ ok?: string }>;
+}) {
   const { shop: username } = await params;
-  const s = await shopContext(username);
+  const q = await searchParams;
+  const s = await shopModule(username, "invoices");
   const invoices = await prisma.invoice.findMany({
     where: { shopId: s.shopId },
     include: { customer: true, lines: true },
@@ -15,15 +22,16 @@ export default async function InvoicesPage({ params }: { params: Promise<{ shop:
   return (
     <div>
       <PageHeader title="Invoices" hint="Latest 50 sales. Open POS to raise a new bill." />
+      {q.ok ? <Banner kind="ok">Invoice {q.ok} issued.</Banner> : null}
       <DataTable headers={["Number", "Customer", "Total", "VAT", "Pay", "Status"]}>
         {invoices.map((inv) => (
           <tr key={inv.id} className="hover:bg-slate-50/80">
             <td className="px-4 py-3 font-medium">{inv.number}</td>
-            <td>{inv.customer?.name || "Walk-in"}</td>
-            <td className="tabular-nums">{aed(inv.totalFils)}</td>
-            <td className="tabular-nums text-slate-500">{aed(inv.vatFils)}</td>
-            <td className="capitalize">{inv.paymentMode.replaceAll("_", " ")}</td>
-            <td>
+            <td className="px-4 py-3">{inv.customer?.name || "Walk-in"}</td>
+            <td className="px-4 py-3 tabular-nums">{aed(inv.totalFils)}</td>
+            <td className="px-4 py-3 tabular-nums text-slate-500">{aed(inv.vatFils)}</td>
+            <td className="px-4 py-3 capitalize">{inv.paymentMode.replaceAll("_", " ")}</td>
+            <td className="px-4 py-3">
               <Badge tone={statusTone(inv.status)}>{inv.status}</Badge>
             </td>
           </tr>

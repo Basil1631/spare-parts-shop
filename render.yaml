@@ -10,8 +10,10 @@ services:
     healthCheckPath: /up
     envVars:
       - key: DATABASE_URL
-        value: file:/app/data/erp.db
+        sync: false
       - key: AUTH_SECRET
         generateValue: true
       - key: NODE_ENV
         value: production
+      - key: SEED_ON_BOOT
+        value: "false"

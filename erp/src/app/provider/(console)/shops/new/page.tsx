@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { createShop } from "@/app/actions";
+import { SubmitButton } from "@/components/FormButtons";
 
 export default async function NewShopPage({
   searchParams,
@@ -18,18 +19,37 @@ export default async function NewShopPage({
       {q.error === "taken" ? <p className="text-red-600 text-sm mb-3">That username is already used.</p> : null}
       {q.error === "1" ? <p className="text-red-600 text-sm mb-3">Fill shop name, username, owner email, and a password of 6+ characters.</p> : null}
       <form action={createShop} className="bg-white rounded-2xl border border-slate-100 p-5 space-y-3 shadow-sm">
-        <input name="name" required placeholder="Shop / garage name" className={field} />
-        <div>
-          <input name="username" required placeholder="Username (login URL)" className={field} />
-          <p className="text-xs text-slate-500 mt-1">Staff sign in at /s/this-username</p>
-        </div>
-        <input name="legalName" placeholder="Legal name (optional)" className={field} />
-        <input name="trn" placeholder="TRN (optional)" className={field} />
+        <label className="block text-xs font-medium text-slate-600">
+          Shop / garage name
+          <input name="name" required className={`${field} mt-1`} />
+        </label>
+        <label className="block text-xs font-medium text-slate-600">
+          Username (login URL)
+          <input name="username" required className={`${field} mt-1`} />
+          <span className="block text-xs font-normal text-slate-500 mt-1">Staff sign in at /s/this-username</span>
+        </label>
+        <label className="block text-xs font-medium text-slate-600">
+          Legal name (optional)
+          <input name="legalName" className={`${field} mt-1`} />
+        </label>
+        <label className="block text-xs font-medium text-slate-600">
+          TRN (optional)
+          <input name="trn" className={`${field} mt-1`} />
+        </label>
         <div className="pt-2 text-sm font-medium text-[#101622]">First shop owner</div>
-        <input name="ownerName" required placeholder="Owner name" className={field} />
-        <input name="ownerEmail" type="email" required placeholder="Owner email" className={field} />
-        <input name="ownerPassword" type="password" required placeholder="Owner password" className={field} />
-        <button className="w-full h-11 bg-[#101622] text-white rounded-full text-sm font-medium">Create shop</button>
+        <label className="block text-xs font-medium text-slate-600">
+          Owner name
+          <input name="ownerName" required className={`${field} mt-1`} />
+        </label>
+        <label className="block text-xs font-medium text-slate-600">
+          Owner email
+          <input name="ownerEmail" type="email" required className={`${field} mt-1`} />
+        </label>
+        <label className="block text-xs font-medium text-slate-600">
+          Owner password
+          <input name="ownerPassword" type="password" required minLength={6} className={`${field} mt-1`} />
+        </label>
+        <SubmitButton className="w-full h-11 bg-[#101622] text-white rounded-full text-sm font-medium">Create shop</SubmitButton>
       </form>
     </div>
   );

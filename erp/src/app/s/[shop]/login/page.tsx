@@ -34,6 +34,7 @@ export default async function ShopLoginPage({
           {shop.name}. Same URL for every role. Use your own email and password.
         </p>
         {q.error === "1" ? <p className="mt-3 text-sm text-red-600">Wrong email or password.</p> : null}
+        {q.error === "shop" ? <p className="mt-3 text-sm text-red-600">This shop is suspended. Contact Inktek Solutions.</p> : null}
         <form action={login} className="mt-6 space-y-4">
           <div>
             <label className="block text-[13px] text-[#6B7280] mb-1.5">Email</label>

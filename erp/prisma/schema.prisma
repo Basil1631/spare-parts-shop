@@ -123,6 +123,10 @@ model User {
   lastLoginAt  DateTime?
   createdAt    DateTime  @default(now())
   attendance   Attendance[]
+  sales        Invoice[]        @relation("InvoiceSalesperson")
+  ordersRaised PurchaseOrder[]  @relation("PoCreatedBy")
+  ordersReceived PurchaseOrder[] @relation("PoReceivedBy")
+  movements    StockMovement[]
   @@unique([shopId, email])
 }
 
@@ -144,6 +148,7 @@ model Warehouse {
   branch   Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
   name     String
   stocks   StockItem[]
+  movements StockMovement[]
 }
 
 model Part {
@@ -160,6 +165,9 @@ model Part {
   active      Boolean @default(true)
   stocks      StockItem[]
   movements   StockMovement[]
+  purchaseLines PurchaseLine[]
+  invoiceLines  InvoiceLine[]
+  jobParts      JobPart[]
   @@unique([shopId, sku])
 }
 
@@ -174,14 +182,17 @@ model StockItem {
 }
 
 model StockMovement {
-  id        String       @id @default(cuid())
-  partId    String
-  part      Part         @relation(fields: [partId], references: [id], onDelete: Cascade)
-  type      MovementType
-  qty       Int
-  note      String?
-  userId    String?
-  createdAt DateTime     @default(now())
+  id          String       @id @default(cuid())
+  partId      String
+  part        Part         @relation(fields: [partId], references: [id])
+  warehouseId String?
+  warehouse   Warehouse?   @relation(fields: [warehouseId], references: [id])
+  type        MovementType
+  qty         Int
+  note        String?
+  userId      String?
+  user        User?        @relation(fields: [userId], references: [id])
+  createdAt   DateTime     @default(now())
 }
 
 model Supplier {
@@ -204,11 +215,15 @@ model PurchaseOrder {
   status       PoStatus @default(awaiting_godown)
   notes        String?
   createdById  String
+  createdBy    User     @relation("PoCreatedBy", fields: [createdById], references: [id])
   receivedById String?
+  receivedBy   User?    @relation("PoReceivedBy", fields: [receivedById], references: [id])
   createdAt    DateTime @default(now())
   receivedAt   DateTime?
   lines        PurchaseLine[]
   vendorBill   VendorBill?
+  @@unique([shopId, number])
+  @@index([shopId, status])
 }
 
 model PurchaseLine {
@@ -216,6 +231,7 @@ model PurchaseLine {
   orderId     String
   order       PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
   partId      String
+  part        Part          @relation(fields: [partId], references: [id])
   orderedQty  Int
   receivedQty Int           @default(0)
   unitCostFils Int
@@ -257,8 +273,11 @@ model Invoice {
   vatFils      Int
   totalFils    Int
   salespersonId String
+  salesperson   User          @relation("InvoiceSalesperson", fields: [salespersonId], references: [id])
   createdAt    DateTime      @default(now())
   lines        InvoiceLine[]
+  @@unique([shopId, number])
+  @@index([shopId, createdAt])
 }
 
 model InvoiceLine {
@@ -266,6 +285,7 @@ model InvoiceLine {
   invoiceId     String
   invoice       Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   partId        String
+  part          Part    @relation(fields: [partId], references: [id])
   qty           Int
   unitPriceFils Int
   lineTotalFils Int
@@ -301,6 +321,7 @@ model JobPart {
   jobId    String
   job      JobCard @relation(fields: [jobId], references: [id], onDelete: Cascade)
   partId   String
+  part     Part    @relation(fields: [partId], references: [id])
   qty      Int
   issued   Boolean @default(false)
 }

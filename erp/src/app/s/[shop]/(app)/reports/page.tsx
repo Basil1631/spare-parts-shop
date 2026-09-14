@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { shopContext } from "@/lib/auth";
 import { aed } from "@/lib/money";
 import { PageHeader, Panel } from "@/components/ui";
+import { shopModule } from "@/lib/access";
 
 export default async function ReportsPage({ params }: { params: Promise<{ shop: string }> }) {
   const { shop: username } = await params;
-  const s = await shopContext(username);
+  const s = await shopModule(username, "reports");
   const [sales, unpaid, low] = await Promise.all([
     prisma.invoice.aggregate({ where: { shopId: s.shopId }, _sum: { totalFils: true, vatFils: true }, _count: true }),
     prisma.invoice.aggregate({ where: { shopId: s.shopId, status: "unpaid" }, _sum: { totalFils: true } }),

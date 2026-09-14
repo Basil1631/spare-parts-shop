@@ -68,9 +68,22 @@ export function DataTable({ headers, children }: { headers: string[]; children: 
   );
 }
 
+export function FieldLabel({ htmlFor, children }: { htmlFor?: string; children: React.ReactNode }) {
+  return (
+    <label htmlFor={htmlFor} className="block text-xs font-medium text-slate-600 mb-1">
+      {children}
+    </label>
+  );
+}
+
+export function Banner({ kind, children }: { kind: "ok" | "error"; children: React.ReactNode }) {
+  const cls = kind === "ok" ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700";
+  return <div className={`rounded-2xl px-4 py-3 text-sm mb-4 ${cls}`}>{children}</div>;
+}
+
 export function statusTone(status: string): "ok" | "warn" | "muted" | "danger" {
   if (["paid", "active", "completed", "closed", "received"].includes(status)) return "ok";
   if (["unpaid", "awaiting_godown", "parts_pending", "low", "suspended", "leave"].includes(status)) return "warn";
-  if (["open", "in_progress"].includes(status)) return "muted";
+  if (["cancelled"].includes(status)) return "danger";
   return "muted";
 }

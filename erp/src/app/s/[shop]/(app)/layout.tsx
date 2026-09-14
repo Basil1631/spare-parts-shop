@@ -24,7 +24,6 @@ export default async function ShopLayout({
   return (
     <AppShell
       brand={session.shopName}
-      subtitle={`/s/${username}`}
       userName={session.name}
       userRole={ROLE_LABEL[session.role]}
       groups={groups}

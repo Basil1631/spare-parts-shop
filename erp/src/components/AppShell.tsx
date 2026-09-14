@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "./Icon";
 
 export type NavItem = { href: string; label: string; icon: string };
@@ -27,13 +27,20 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   const flat = groups.flatMap((g) => g.items);
   const current = flat.find((item) => {
     const root = item.href === "/provider" || /^\/s\/[^/]+$/.test(item.href);
     return root ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
   });
 
-  function Nav() {
+  function Nav({ logout }: { logout?: boolean }) {
     return (
       <>
         <div className="px-5 pt-6 pb-4 border-b border-white/10">
@@ -74,9 +81,11 @@ export function AppShell({
         <div className="p-4 border-t border-white/10">
           <div className="text-sm font-medium truncate">{userName}</div>
           <div className="text-xs text-slate-400 mb-3 truncate">{userRole}</div>
-          <form action={logoutAction}>
-            <button className="w-full h-10 rounded-xl bg-white/10 hover:bg-white/15 text-sm font-medium">Log out</button>
-          </form>
+          {logout ? (
+            <form action={logoutAction}>
+              <button className="w-full h-10 rounded-xl bg-white/10 hover:bg-white/15 text-sm font-medium">Log out</button>
+            </form>
+          ) : null}
         </div>
       </>
     );
@@ -85,7 +94,7 @@ export function AppShell({
   return (
     <div className="min-h-screen flex bg-[#f3f5f8] text-slate-800">
       <aside className="hidden lg:flex w-[248px] shrink-0 bg-[#09131F] text-slate-100 flex-col min-h-screen sticky top-0 h-screen">
-        <Nav />
+        <Nav logout />
       </aside>
       {open ? (
         <div className="lg:hidden fixed inset-0 z-40">

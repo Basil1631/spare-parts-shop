@@ -8,7 +8,7 @@ async function main() {
 
   await prisma.providerUser.upsert({
     where: { email: "superadmin@inktek.local" },
-    update: { passwordHash },
+    update: { name: "Inktek Super Admin" },
     create: {
       name: "Inktek Super Admin",
       email: "superadmin@inktek.local",
@@ -18,7 +18,7 @@ async function main() {
 
   const shop = await prisma.shop.upsert({
     where: { username: "alain" },
-    update: { name: "Al Ain Spare Parts", status: "active" },
+    update: { name: "Al Ain Spare Parts" },
     create: {
       name: "Al Ain Spare Parts",
       username: "alain",
@@ -57,7 +57,7 @@ async function main() {
   for (const u of staff) {
     await prisma.user.upsert({
       where: { shopId_email: { shopId: shop.id, email: u.email } },
-      update: { name: u.name, role: u.role, active: true, passwordHash },
+      update: { name: u.name, role: u.role },
       create: {
         shopId: shop.id,
         email: u.email,

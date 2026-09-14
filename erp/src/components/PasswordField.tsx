@@ -6,7 +6,9 @@ export function PasswordField({ name = "password" }: { name?: string }) {
   const [show, setShow] = useState(false);
   return (
     <div>
-      <label className="block text-[13px] text-[#6B7280] mb-1.5">Password</label>
+      <label htmlFor={name} className="block text-[13px] text-[#6B7280] mb-1.5">
+        Password
+      </label>
       <div className="relative">
         <input
           id={name}
