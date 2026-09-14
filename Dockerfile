@@ -5,7 +5,7 @@ COPY erp/package.json erp/package-lock.json ./
 RUN npm ci
 COPY erp/ ./
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV DATABASE_URL="file:/app/data/erp.db"
+ENV DATABASE_URL="postgresql://build:build@127.0.0.1:5432/partszone"
 RUN mkdir -p /app/data && npx prisma generate && npx next build
 EXPOSE 10000
 CMD ["node", "scripts/boot.mjs"]
