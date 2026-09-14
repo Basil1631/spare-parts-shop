@@ -24,3 +24,7 @@ yarn-error.log
 /.cursor
 /database/database.sqlite
 /database/database.sqlite-journal
+/erp/node_modules
+/erp/.next
+/erp/dev.db
+*.db

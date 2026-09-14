@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
 services:
   - type: web
     name: spare-parts-shop
@@ -8,19 +9,9 @@ services:
     dockerContext: .
     healthCheckPath: /up
     envVars:
-      - key: APP_ENV
-        value: production
-      - key: APP_DEBUG
-        value: "false"
-      - key: LOG_CHANNEL
-        value: stderr
-      - key: SESSION_DRIVER
-        value: database
-      - key: CACHE_STORE
-        value: database
-      - key: QUEUE_CONNECTION
-        value: sync
-      - key: DB_CONNECTION
-        value: sqlite
-      - key: APP_KEY
+      - key: DATABASE_URL
+        value: file:/app/data/erp.db
+      - key: AUTH_SECRET
         generateValue: true
+      - key: NODE_ENV
+        value: production

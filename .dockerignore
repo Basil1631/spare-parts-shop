@@ -1,11 +1,7 @@
 .git
-.cursor
-.env
+**/node_modules
+erp/.next
+erp/dev.db
 vendor
-storage/logs/*
-storage/framework/cache/data/*
-storage/framework/sessions/*
-storage/framework/views/*
-database/database.sqlite
-*.md
-.phpunit.cache
+storage
+bootstrap/cache

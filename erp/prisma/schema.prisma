@@ -1,0 +1,306 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ShopStatus {
+  active
+  suspended
+  trial
+}
+
+enum Role {
+  owner
+  tenant_admin
+  branch_manager
+  purchase
+  cashier
+  warehouse
+  accountant
+  hr
+  technician
+}
+
+enum PoStatus {
+  draft
+  approved
+  awaiting_godown
+  received
+  cancelled
+}
+
+enum InvoiceStatus {
+  issued
+  unpaid
+  paid
+  cancelled
+}
+
+enum BillPayStatus {
+  unpaid
+  paid
+}
+
+enum MovementType {
+  receipt
+  sale
+  adjustment
+  return_in
+  workshop_issue
+}
+
+enum JobStatus {
+  open
+  in_progress
+  parts_pending
+  completed
+  invoiced
+  closed
+}
+
+enum CustomerType {
+  walk_in
+  account
+  wholesale
+}
+
+model ProviderUser {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Shop {
+  id          String     @id @default(cuid())
+  name        String
+  username    String     @unique
+  legalName   String?
+  trn         String?
+  status      ShopStatus @default(active)
+  vatPercent  Float      @default(5)
+  currency    String     @default("AED")
+  createdAt   DateTime   @default(now())
+  users       User[]
+  branches    Branch[]
+  warehouses  Warehouse[]
+  parts       Part[]
+  suppliers   Supplier[]
+  customers   Customer[]
+  purchaseOrders PurchaseOrder[]
+  invoices    Invoice[]
+  vendorBills VendorBill[]
+  jobs        JobCard[]
+  sequences   Sequence[]
+  attendance  Attendance[]
+}
+
+model Sequence {
+  id     String @id @default(cuid())
+  shopId String
+  shop   Shop   @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name   String
+  next   Int    @default(1)
+  @@unique([shopId, name])
+}
+
+model User {
+  id           String    @id @default(cuid())
+  shopId       String
+  shop         Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name         String
+  email        String
+  passwordHash String
+  role         Role
+  active       Boolean   @default(true)
+  monthlySalaryFils Int  @default(0)
+  incentivePercent  Float @default(0)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  attendance   Attendance[]
+  @@unique([shopId, email])
+}
+
+model Branch {
+  id        String      @id @default(cuid())
+  shopId    String
+  shop      Shop        @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name      String
+  address   String?
+  isDefault Boolean     @default(true)
+  warehouses Warehouse[]
+}
+
+model Warehouse {
+  id       String  @id @default(cuid())
+  shopId   String
+  shop     Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  branchId String
+  branch   Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  name     String
+  stocks   StockItem[]
+}
+
+model Part {
+  id          String  @id @default(cuid())
+  shopId      String
+  shop        Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  sku         String
+  oemNumber   String?
+  brand       String?
+  name        String
+  unit        String  @default("pcs")
+  minQty      Int     @default(0)
+  salePriceFils Int   @default(0)
+  active      Boolean @default(true)
+  stocks      StockItem[]
+  movements   StockMovement[]
+  @@unique([shopId, sku])
+}
+
+model StockItem {
+  id         String     @id @default(cuid())
+  partId     String
+  part       Part       @relation(fields: [partId], references: [id], onDelete: Cascade)
+  warehouseId String
+  warehouse  Warehouse  @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  qtyOnHand  Int        @default(0)
+  @@unique([partId, warehouseId])
+}
+
+model StockMovement {
+  id        String       @id @default(cuid())
+  partId    String
+  part      Part         @relation(fields: [partId], references: [id], onDelete: Cascade)
+  type      MovementType
+  qty       Int
+  note      String?
+  userId    String?
+  createdAt DateTime     @default(now())
+}
+
+model Supplier {
+  id      String @id @default(cuid())
+  shopId  String
+  shop    Shop   @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name    String
+  phone   String?
+  trn     String?
+  orders  PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id           String   @id @default(cuid())
+  shopId       String
+  shop         Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  supplierId   String?
+  supplier     Supplier? @relation(fields: [supplierId], references: [id])
+  number       String
+  status       PoStatus @default(awaiting_godown)
+  notes        String?
+  createdById  String
+  receivedById String?
+  createdAt    DateTime @default(now())
+  receivedAt   DateTime?
+  lines        PurchaseLine[]
+  vendorBill   VendorBill?
+}
+
+model PurchaseLine {
+  id          String        @id @default(cuid())
+  orderId     String
+  order       PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  partId      String
+  orderedQty  Int
+  receivedQty Int           @default(0)
+  unitCostFils Int
+}
+
+model VendorBill {
+  id          String        @id @default(cuid())
+  shopId      String
+  shop        Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  orderId     String        @unique
+  order       PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amountFils  Int
+  status      BillPayStatus @default(unpaid)
+  paidAt      DateTime?
+}
+
+model Customer {
+  id      String       @id @default(cuid())
+  shopId  String
+  shop    Shop         @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name    String
+  type    CustomerType @default(account)
+  phone   String?
+  trn     String?
+  invoices Invoice[]
+  jobs    JobCard[]
+}
+
+model Invoice {
+  id           String        @id @default(cuid())
+  shopId       String
+  shop         Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  customerId   String?
+  customer     Customer?     @relation(fields: [customerId], references: [id])
+  number       String
+  status       InvoiceStatus @default(issued)
+  paymentMode  String        @default("cash")
+  subtotalFils Int
+  vatFils      Int
+  totalFils    Int
+  salespersonId String
+  createdAt    DateTime      @default(now())
+  lines        InvoiceLine[]
+}
+
+model InvoiceLine {
+  id            String  @id @default(cuid())
+  invoiceId     String
+  invoice       Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  partId        String
+  qty           Int
+  unitPriceFils Int
+  lineTotalFils Int
+}
+
+model Attendance {
+  id      String   @id @default(cuid())
+  shopId  String
+  shop    Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workedOn DateTime
+  loginAt DateTime @default(now())
+  @@unique([userId, workedOn])
+}
+
+model JobCard {
+  id          String    @id @default(cuid())
+  shopId      String
+  shop        Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  vehicle     String?
+  complaint   String
+  status      JobStatus @default(open)
+  labourFils  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  parts       JobPart[]
+}
+
+model JobPart {
+  id       String  @id @default(cuid())
+  jobId    String
+  job      JobCard @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  partId   String
+  qty      Int
+  issued   Boolean @default(false)
+}
